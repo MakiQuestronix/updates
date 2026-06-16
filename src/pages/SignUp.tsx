@@ -1,20 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Google from "../assets/Google.svg";
 import eyeClose from "../assets/eyeClose.svg";
 import eyeOpen from "../assets/eyeOpen.svg";
 
 type FormData = {
-  email: string;
   password: string;
-  firstName?: string;
-  lastName?: string;
-  confirmPassword?: string;
+  firstName: string;
+  lastName: string;
+  confirmPassword: string;
 };
 
 function SignUp() {
+  const [inviteValid, setInviteValid] = useState<boolean | null>(null);
+  const location = useLocation();
+
+  //error messages
   const [firstNameError, setFirstNameError] = useState("");
   const [lastNameError, setLastNameError] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -22,11 +25,12 @@ function SignUp() {
   const [confirmPassError, setConfirmPassError] = useState("");
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [generalError, setGeneralError] = useState("");
 
   const navigate = useNavigate();
+  const [invitedEmail, setInvitedEmail] = useState("");
 
   const [form, setForm] = useState<FormData>({
-    email: "",
     password: "",
     firstName: "",
     lastName: "",
@@ -42,6 +46,43 @@ function SignUp() {
     }));
   };
 
+  const validateToken = async (token: string | null) => {
+    setGeneralError("");
+    try {
+      const response = {
+        success: true,
+        error: "",
+        invitedEmail: "mail@mail.com",
+      };
+
+      if (!response.success) {
+        setInviteValid(false);
+
+        switch (response.error) {
+          case "TOKEN_EXPIRED":
+            setGeneralError(
+              "This invitation link has expired. Please request a new invitation.",
+            );
+            break;
+
+          case "TOKEN_INVALID":
+            setGeneralError(
+              "This invitation link is invalid. Please request a new invitation.",
+            );
+            break;
+        }
+
+        return;
+      }
+
+      setInvitedEmail(response.invitedEmail);
+      setInviteValid(true);
+    } catch {
+      setInviteValid(false);
+      setGeneralError("Unable to validate invitation link.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -54,18 +95,13 @@ function SignUp() {
     // Empty fields
     let hasError = false;
 
-    if (!form.firstName?.trim()) {
+    if (!form.firstName.trim()) {
       setFirstNameError("Please fill in all fields.");
       hasError = true;
     }
 
-    if (!form.lastName?.trim()) {
+    if (!form.lastName.trim()) {
       setLastNameError("Please fill in all fields.");
-      hasError = true;
-    }
-
-    if (!form.email.trim()) {
-      setEmailError("Please fill in all fields.");
       hasError = true;
     }
 
@@ -74,19 +110,12 @@ function SignUp() {
       hasError = true;
     }
 
-    if (!form.confirmPassword?.trim()) {
+    if (!form.confirmPassword.trim()) {
       setConfirmPassError("Please fill in all fields.");
       hasError = true;
     }
 
     if (hasError) return;
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailRegex.test(form.email)) {
-      setEmailError("Please enter a valid email address.");
-      return;
-    }
 
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'",.<>/?\\|`~])(?!.*\s).{8,}$/;
@@ -106,24 +135,28 @@ function SignUp() {
     try {
       // Backend Part
 
-      //sample
+      //sample hardcoded, will remove
       const response = {
         success: true,
-        error: "",
+        error: "TOKEN_EXPIRED",
       };
 
       if (!response.success) {
         switch (response.error) {
-          case "INVALID_EMAIL":
-            setEmailError("No account found with this email.");
+          case "EMAIL_ALREADY_REGISTERED":
+            setEmailError(
+              "An account with this email already exists. Please log in instead.",
+            );
             break;
 
-          case "INCORRECT_PASSWORD":
-            setPassError("Incorrect password.");
+          case "PASSWORD_POLICY_FAILED":
+            setPassError(
+              "Password must be at least 8 characters long and include an uppercase letter, a number, and a special character.",
+            );
             break;
 
           default:
-            setEmailError("Login failed.");
+            setEmailError("Registration failed. Please try again.");
         }
 
         return;
@@ -144,15 +177,43 @@ function SignUp() {
     // Redirect to Google OAuth
   };
 
+  useEffect(() => {
+    const token = new URLSearchParams(location.search).get("token");
+    validateToken(token);
+  }, [location.search]);
+
+  //no invite link
+  if (inviteValid === false) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h1 className="text-3xl mb-10 font-bold">Invalid Invitation</h1>
+        <p className="text-[#828282]">{generalError}</p>
+
+        <Link
+          to="/"
+          className="text-blue-500 mt-10 hover:underline hover:font-bold"
+        >
+          Back to Login
+        </Link>
+      </div>
+    );
+  }
+
+  if (inviteValid === null) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Validating invitation...
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="flex flex-col md:flex-row h-screen">
         {/* Left Side */}
         <div className="hidden md:block md:w-2/5 h-full bg-linear-[330deg,black,#454545] p-6 items-center">
-          <h3 className="font-inter font-bold text-4xl text-white mt-30">
-            Ingest IQ
-          </h3>
-          <h1 className="font-inter font-bold text-8xl text-white mt-10">
+          <h3 className="font-bold text-4xl text-white mt-30">Ingest IQ</h3>
+          <h1 className="font-bold text-8xl text-white mt-10">
             Let's get
             <br />
             Started!
@@ -165,7 +226,7 @@ function SignUp() {
         {/* Right Side */}
         <div className="w-full md:w-3/5 flex flex-col items-center gap-4 overflow-y-auto items-center justify-center ">
           <div className="flex flex-col items-center gap-1 w-1/2 max-w-md">
-            <h1 className="font-inter font-bold text-2xl text-black mt-2">
+            <h1 className="font-bold text-2xl text-black mt-2">
               Create Account
             </h1>
             <p className="text-14 text-center">
@@ -212,7 +273,8 @@ function SignUp() {
               <input
                 type="email"
                 name="email"
-                value={form.email}
+                value={invitedEmail}
+                readOnly
                 onChange={handleChange}
                 placeholder="Email"
                 className="w-full px-4 py-2 border border-[#828282] rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
@@ -281,6 +343,9 @@ function SignUp() {
                 </button>
               </div>
             </form>
+            {generalError && (
+              <p className="text-red-500 text-xs">{generalError}</p>
+            )}
           </div>
 
           <div className="flex items-center gap-4 w-full max-w-md">
