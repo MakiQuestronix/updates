@@ -14,7 +14,13 @@
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.17.0",
+<<<<<<< Updated upstream
     "tailwindcss": "^4.3.0"
+=======
+    "tailwindcss": "^4.3.0",
+    "vite-plugin-svgr": "^5.2.0",
+    "zustand": "^5.0.14"
+>>>>>>> Stashed changes
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

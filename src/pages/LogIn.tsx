@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/AuthStore";
 
-import logo from "../assets/Logo.svg";
+import LogoIcon from "../assets/Logo.svg?react";
 import Google from "../assets/Google.svg";
 import eyeOpen from "../assets/eyeOpen.svg";
 import eyeClose from "../assets/eyeClose.svg";
@@ -15,8 +16,12 @@ function LogIn() {
   const [error, setError] = useState("");
   const [passError, setPassError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const token = useAuthStore((state) => state.token);
+
+  const navigate = useNavigate();
 
   const [form, setForm] = useState<FormData>({
     email: "",
@@ -35,20 +40,19 @@ function LogIn() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    setError("");
-    setPassError("");
     e.preventDefault();
 
     setError("");
+    setPassError("");
 
     // Empty fields
     if (!form.email.trim()) {
-      setError("Please fill in all fields.");
+      setError("Email is required.");
       return;
     }
 
     if (!form.password.trim()) {
-      setPassError("Please fill in all fields.");
+      setPassError("Password is required.");
       return;
     }
 
@@ -59,23 +63,26 @@ function LogIn() {
       return;
     }
 
+    setLoading(true);
+
     try {
       // Backend Part
 
       if (rememberMe) {
         // Set cookie for persistent login
+        //set token to true for login
       }
 
       //sample
       const response = {
-        success: false,
+        success: true,
         error: "INVALID_EMAIL",
       };
 
       if (!response.success) {
         if (
-          response.error == "INVALID_EMAIL" ||
-          response.error == "INCORRECT_PASSWORD"
+          response.error === "INVALID_EMAIL" ||
+          response.error === "INCORRECT_PASSWORD"
         ) {
           setError("Invalid email or password");
           return;
@@ -86,26 +93,36 @@ function LogIn() {
       }
 
       console.log("Sumakses sa login");
+      navigate("/Layout/dashboard");
     } catch (err) {
       setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleLogin = () => {
     console.log("Google Login Clicked");
 
-    // Redirect to Google OAuth
+    //backend logic here if di man need google will remove this.
+
+    navigate("/Layout/dashboard");
+
+    // Redirect sa Google OAuth
   };
+
+  useEffect(() => {
+    if (token) {
+      navigate("/Layout/dashboard");
+    }
+  }, [token, navigate]);
 
   return (
     <>
       <div className="flex flex-col md:flex-row h-screen">
-        {/* Left Side */}
         <div className="hidden md:block md:w-2/5 h-full bg-linear-[330deg,black,#454545] p-6">
-          <h3 className="font-inter font-bold text-4xl text-white mt-30">
-            Ingest IQ
-          </h3>
-          <h1 className="font-inter font-bold text-5xl md:text-8xl text-white mt-10">
+          <h3 className="font-bold text-4xl text-white mt-30">Ingest IQ</h3>
+          <h1 className="font-bold text-5xl md:text-8xl text-white mt-10">
             Welcome <br />
             Back!
           </h1>
@@ -117,16 +134,12 @@ function LogIn() {
         {/* Right Side */}
         <div className="w-full md:w-3/5 flex flex-col items-center gap-4 overflow-y-auto items-center justify-center">
           <div className="flex flex-col items-center">
-            <img src={logo} alt="IngestIQ Logo" className="w-20 h-20" />
-            <h1 className="font-inter font-bold text-3xl text-black">
-              Ingest IQ
-            </h1>
+            <LogoIcon className="w-20 h-20" />
+            <h1 className="font-bold text-3xl text-black">Ingest IQ</h1>
           </div>
 
           <div className="flex flex-col items-center gap-1">
-            <h1 className="font-inter font-bold text-2xl text-black mt-2">
-              Login
-            </h1>
+            <h1 className="font-bold text-2xl text-black mt-2">Login</h1>
             <p className="text-16">
               Welcome back! Please log in to your account.
             </p>
@@ -194,9 +207,10 @@ function LogIn() {
               <div className="flex justify-center mt-2">
                 <button
                   type="submit"
+                  disabled={loading}
                   className="bg-black text-white py-2 px-4 rounded-md hover:bg-[#1E1E1E] mt-2 w-full"
                 >
-                  Login
+                  {loading ? "Logging in..." : "Login"}
                 </button>
               </div>
             </form>
@@ -211,11 +225,12 @@ function LogIn() {
           <div className="flex justify-center w-full max-w-md">
             <button
               type="button"
+              disabled={loading}
               className="flex items-center justify-center bg-[#EEEEEE] text-black py-2 px-4 rounded-md hover:bg-[#D3D3D3] mt-2 w-full"
               onClick={handleGoogleLogin}
             >
               <img src={Google} alt="Google Logo" className="w-5 h-5 mr-5" />
-              <p>Login with Google</p>
+              <p>{loading ? "Logging in..." : "Login with Google"}</p>
             </button>
           </div>
 
