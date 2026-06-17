@@ -8,6 +8,7 @@ import { useActivityLogStore } from "../store/ActivityLogStore";
 
 import RefreshIcon from "../assets/refresh.svg?react";
 import FolderIcon from "../assets/folder.svg?react";
+import { Link } from "react-router";
 
 const getCurrentTime = () =>
   new Date().toLocaleTimeString([], {
@@ -61,10 +62,10 @@ function Dashboard() {
   }, [fetchDashboardData, fetchWorkspaces, fetchKnowledge, fetchActivityLog]);
 
   return (
-    <div className="flex flex-col h-screen text-sm sm:text-base">
+    <div className="flex flex-col h-screen text-sm sm:text-sm">
       <Header />
 
-      <div className="flex-1 overflow-y-auto pt-5 pb-10 px-4">
+      <div className="flex-1 overflow-y-auto pt-2 pb-10 px-4">
         <div className="flex flex-col gap-3 md:flex-row items-start md:items-center justify-between px-4 py-2">
           <h1 className=" text-xl sm:text-2xl font-semibold">Dashboard</h1>
           <button
@@ -72,17 +73,17 @@ function Dashboard() {
             className="flex items-center justify-center px-3 sm:px-4 py-2 gap-3 h-9 w-full sm:w-40 bg-black rounded-lg mr-0 sm:mr-4 hover:bg-gray-800 transition-colors"
           >
             <RefreshIcon
-              className="w-4 h-4 text-white"
+              className="size-4 text-white"
               style={{
                 transform: isRefreshing ? "rotate(360deg)" : "rotate(0deg)",
                 transition: "transform 0.4s linear",
               }}
             />
-            <p className=" text-white text-xs">Refresh Now</p>
+            <p className=" text-white text-sm">Refresh Now</p>
           </button>
         </div>
 
-        <div className="px-4 py-2">
+        <div className="px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             {mainStats.map((stat, index) => (
               <StatCard
@@ -97,14 +98,15 @@ function Dashboard() {
 
         <div className="px-4 py-2 rounded-lg shadow-xs border border-[#E0E0E0] m-4">
           <div className="flex sm:flex-row items-start sm:items-center justify-between gap-3">
-            <h6 className=" text-sm sm:text-base font-semibold">
-              Active Workspaces
-            </h6>
-            <button className="text-xs sm:text-sm  font-semibold hover:underline">
+            <h6 className=" text-sm font-semibold">Active Workspaces</h6>
+            <Link
+              to={`/Layout/workspace/`}
+              className="text-sm font-semibold hover:underline"
+            >
               <p>
                 View All <span className="text-lg">→</span>
               </p>
-            </button>
+            </Link>
           </div>
           <hr className="border-b border-[#E0E0E0] my-2" />
 
@@ -114,21 +116,21 @@ function Dashboard() {
                 key={workspace.id}
                 className="grid grid-cols-3 items-center py-2 px-2 sm:px-3 hover:bg-gray-50 rounded-md cursor-pointer"
               >
-                <div className="flex justify-self-start items-center gap-2 text-xs sm:text-sm">
+                <div className="flex justify-self-start items-center gap-2 text-sm sm:text-sm">
                   <FolderIcon className="w-5 h-5 text-black" />
-                  <p className="font-inter">{workspace.name}</p>
+                  <p className="font-inter text-sm">{workspace.name}</p>
                 </div>
 
-                <p className=" text-xs sm:text-sm justify-self-center">
+                <p className=" text-sm sm:text-sm justify-self-center">
                   {workspace.knowledgeCount} Entries
                 </p>
 
-                <button
+                <Link
                   className="text-sm justify-self-end font-semibold hover:text-gray-600"
-                  onClick={handleOpen}
+                  to={`/Layout/workspace/${workspace.id}`}
                 >
                   <p>Open →</p>
-                </button>
+                </Link>
               </div>
             ))}
           </div>
@@ -149,12 +151,12 @@ function Dashboard() {
                   <p className="text-sm sm:text-sm">{item.name}</p>
 
                   <span
-                    className={`inline-block w-4 h-4 rounded-full ${
+                    className={`inline-block w-4 h-4 rounded-full shadow-[inset_0_4px_4px_rgba(255,255,255,0.8)] ${
                       item.status === 0
-                        ? "bg-green-500"
+                        ? "bg-green-500 border border-green-500"
                         : item.status === 1
-                          ? "bg-red-500"
-                          : "bg-[#F1D104]"
+                          ? "bg-red-500 border border-red-500"
+                          : "bg-[#F1D104] border border-[#F1D104] "
                     }`}
                   />
                 </div>
@@ -162,7 +164,7 @@ function Dashboard() {
             </div>
           </div>
           <div className="rounded-lg shadow-sm p-2 sm:p-3 border border-[#E0E0E0] w-full flex-1">
-            <p className="text-sm sm:text-base font-semibold">
+            <p className="text-sm sm:text-sm font-semibold">
               Processing Status Summary
             </p>
 
@@ -216,7 +218,7 @@ function Dashboard() {
         </div>
 
         <div className="px-4 py-2 rounded-lg shadow-xs border border-[#E0E0E0] m-4">
-          <p className="text-sm sm:text-base font-semibold">
+          <p className="text-sm sm:text-sm font-semibold">
             System Activity Log
           </p>
           <hr className="border-b border-[#E0E0E0] my-2" />
