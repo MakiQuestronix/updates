@@ -10,10 +10,10 @@ function Layout() {
     <SidebarContext.Provider
       value={{ openSidebar: () => setSidebarOpen(true) }}
     >
-      <div className="flex">
+      <div className="flex  h-screen overflow-hidden">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        <main className="flex-1 relative">
+        <main className="flex-1 relative overflow-y-auto">
           <Outlet />
         </main>
 

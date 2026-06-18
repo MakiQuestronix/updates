@@ -68,15 +68,15 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
       </aside>
       <hr className="w-full border-b border-[#E0E0E0]" />
       <div className="px-4 py-6">
-        <h1 className="font-inter font-semibold mb-3">My Workspaces</h1>
+        <h3 className="font-inter font-semibold mb-3">My Workspaces</h3>
 
-        <nav className="flex flex-col gap-5 mt-4">
+        <nav className="flex flex-col">
           {workspaces.map((workspace) => (
             <div
               key={workspace.id}
-              className="px-1 rounded-lg cursor-pointer hover:bg-gray-100 transition"
+              className="px-4 h-fit py-2 mt-1 rounded-md cursor-pointer hover:bg-gray-100 transition"
             >
-              {workspace.name}
+              <p className="text-sm">{workspace.name}</p>
             </div>
           ))}
         </nav>
