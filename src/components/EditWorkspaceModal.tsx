@@ -18,12 +18,10 @@ function EditWorkspaceModal({ onClose }: Props) {
     currentWorkspace?.description ?? "",
   );
   const [ownerSearch, setOwnerSearch] = useState(
-    currentWorkspace?.leadCurator.name ?? "",
+    currentWorkspace?.owner.name ?? "",
   );
   const [ownerDropdownOpen, setOwnerDropdownOpen] = useState(false);
-  const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">(
-    currentWorkspace?.status ?? "ACTIVE",
-  );
+  const [status, setStatus] = useState("Active");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [errors, setErrors] = useState<{ name?: string; owner?: string }>({});

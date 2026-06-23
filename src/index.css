@@ -3,7 +3,19 @@
 @import "tailwindcss";
 
 @theme {
-  --font-inter: "Inter", sans-serif;
+  --color-first: #ffffff;
+  --color-second: #f3ccff;
+  --color-third: #b148d2;
+  --color-fourth: #691883;
+  --color-fifth: #eeeeee;
+  --color-sixth: #333652;
+  --color-seventh: #e79aff;
+
+  --color-textColor: #333652;
+
+  --color-status-active: #0efc4e;
+  --color-status-pending: #f1d104;
+  --color-status-inactive: #d20c0c;
 }
 
 html,
@@ -11,9 +23,19 @@ body,
 #root {
   height: 100%;
   margin: 0;
+  width: 100%;
+  overflow-x: hidden;
   font-family: "Inter", sans-serif;
+  color: #333652;
 }
 
+.page-bg {
+  background-image: url("./assets/background1.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
   display: none;
@@ -44,4 +66,8 @@ input[type="password"]::-ms-clear {
 
 .animate-shake {
   animation: shake 0.4s ease-in-out;
+}
+
+.text-shadow {
+  text-shadow: 1px 3px 8px rgba(0, 0, 0, 0.35);
 }

@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import { SidebarContext } from "../context/SidebarContext";
+import HamburgerButton from "../components/HamburgerButton";
 
 function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -12,6 +13,13 @@ function Layout() {
     >
       <div className="flex  h-screen overflow-hidden">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+        {sidebarOpen && (
+          <HamburgerButton
+            isOpen={sidebarOpen}
+            onClick={() => setSidebarOpen((prev) => !prev)}
+          />
+        )}
 
         <main className="flex-1 relative overflow-y-auto">
           <Outlet />

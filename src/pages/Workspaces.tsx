@@ -7,6 +7,7 @@ import StatCard from "../components/StatCard";
 import Search from "../assets/magnifyingGlass.svg?react";
 import ArrowToggle from "../assets/arrowToggle.svg?react";
 import RefreshIcon from "../assets/refresh.svg?react";
+import Icircle from "../assets/icircle.svg?react";
 
 import { useWorkspaceStore } from "../store/workspaceStore";
 import type { Workspace } from "../store/workspaceStore";
@@ -14,17 +15,12 @@ import CreateWorkspaceModal from "../components/CreateWorkspaceModal";
 
 function Workspaces() {
   //UI states
-  const [displayCount, setDisplayCount] = useState(5);
+  const [displayCount, setDisplayCount] = useState(4);
   const [inputValue, setInputValue] = useState("");
   const [showCreate, setShowCreate] = useState(false);
 
-  const { workspaces, members, fetchWorkspaces, fetchMembers } =
-    useWorkspaceStore();
+  const { workspaces, fetchWorkspaces, fetchMembers } = useWorkspaceStore();
   const workspaceCount = workspaces.length;
-
-  const sentenceCase = (role: string) => {
-    return role.charAt(0) + role.slice(1).toLowerCase();
-  };
 
   const filteredWorkspaces = useMemo(() => {
     const query = inputValue.toLowerCase().trim();
@@ -98,93 +94,109 @@ function Workspaces() {
 
   return (
     <>
-      <div className="sticky top-0 z-10 bg-white">
-        <Header />
-      </div>
-      <div className="flex flex-col h-screen sm:text-base">
-        <div className="flex-1 overflow-y-auto pt-2 pb-10 px-4 py-10">
-          <div className="px-4 py-2">
-            <h1 className=" text-xl sm:text-2xl font-semibold">
-              Workspace Management
-            </h1>
-            <div className="px-4 py-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-2">
-                {stats.map((stat) => (
-                  <StatCard
-                    key={stat.name}
-                    name={stat.name}
-                    amount={stat.amount}
-                    highlight={stat.name === "Active Workspaces"}
-                  />
-                ))}
-              </div>
-              <div className="px-4 py-2 border border-[#E0E0E0] rounded-md shadow-xs">
-                <div>
-                  <p className="font-semibold text-md">Workspaces</p>
-                </div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center border border-[#e0e0e0] rounded-md px-2">
-                    <Search className="size-4" />
-                    <input
-                      value={inputValue}
-                      onChange={handleSearchChange}
-                      className="w-full px-2 py-1 outline-none"
-                      placeholder="Search staff..."
-                    />
-                  </div>
-                  <button
-                    onClick={() => setShowCreate(true)}
-                    className="bg-black py-1 px-10 m-2 rounded-md hover:bg-[#454545] hover:cursor-pointer"
-                  >
-                    <p className="text-white">+ Create</p>
-                  </button>
-                </div>
-                <div className="grid grid-cols-4 bg-black text-white py-2 px-4 font-semibold items-center rounded-t-md">
-                  <p className="justify-self-center">Workspace</p>
-                  <div className="flex items-center gap-2 justify-self-center">
-                    <p>Status</p>
-                    <ArrowToggle className="w-4 h-4 text-white" />
-                  </div>
-                  <p className="justify-self-center">Staff</p>
-                  <p className="justify-self-center">Action</p>
-                </div>
-                {filteredWorkspaces.slice(0, displayCount).map((workspace) => (
-                  <div
-                    key={workspace.id}
-                    className="grid grid-cols-4 px-4 py-3 items-center border-t border-[#E0E0E0] hover:bg-gray-50"
-                  >
-                    <p className="pl-8">{workspace.name}</p>
-                    <p className="justify-self-center">
-                      <span className="px-3 py-1 rounded-full">
-                        {sentenceCase(workspace.status)}
-                      </span>
-                    </p>
-                    <p className="justify-self-center">
-                      {workspace.staffCount}
-                    </p>
-                    <Link
-                      to={`/Layout/workspace/${workspace.id}`}
-                      className="justify-self-center hover:underline cursor-pointer font-bold"
-                    >
-                      View Details
-                    </Link>
-                  </div>
-                ))}
-                {displayCount < filteredWorkspaces.length && (
-                  <div className="flex justify-center ">
-                    <button
-                      onClick={() => setDisplayCount(displayCount + 2)}
-                      className="flex items-center gap-2 px-4 py-2  hover:bg-gray-200 rounded-lg font-medium transition-colors"
-                    >
-                      <RefreshIcon className="w-4 h-4 text-black" />
-                      Load More
-                    </button>
-                  </div>
-                )}
-              </div>
+      <div className="flex px-4 py-2">
+        <div className="flex-1 overflow-y-auto px-4 py-2">
+          <div className="mb-4">
+            <h1 className=" text-2xl font-semibold">Workspace Management</h1>
+          </div>
+          <div className="my-1 grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
+            {stats.map((stat) => (
+              <StatCard
+                key={stat.name}
+                name={stat.name}
+                amount={stat.amount.toString()}
+                highlight={stat.name === "Active Workspaces"}
+                hoverBgColor="hover:bg-fourth"
+                textHoverColor="hover:text-white"
+                amountSize="3xl"
+              />
+            ))}
+          </div>
+          <div className="px-4 py-2 border border-[#e0e0e0] rounded-md shadow-xs my-4">
+            <div>
+              <p className=" font-semibold text-md">Workspaces</p>
             </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 justify-between mb-2">
+              <div className="flex items-center border border-[#e0e0e0] rounded-md px-2 flex-1">
+                <Search className="size-4 shrink-0" />
+                <input
+                  value={inputValue}
+                  onChange={handleSearchChange}
+                  className="w-full px-2 py-1 outline-none"
+                  placeholder="Search workspaces..."
+                />
+              </div>
+              <button
+                onClick={() => setShowCreate(true)}
+                className="bg-fourth py-1 px-6 rounded-md hover:bg-third hover:cursor-pointer"
+              >
+                <p className="text-sm text-first">+ Create</p>
+              </button>
+            </div>
+
+            <div className="overflow-x-auto rounded-t-md overflow-hidden">
+              <table className="w-full table-fixed text-sm min-w-100">
+                <thead>
+                  <tr className="bg-fourth text-first font-semibold rounded-t-md">
+                    <th className="py-2 px-4 text-left w-2/5">Workspace</th>
+                    <th className="py-2 px-4 text-center">
+                      <button
+                        onClick={handleActiveToggle}
+                        className="flex items-center gap-2 mx-auto"
+                      >
+                        <span>Status</span>
+                        <ArrowToggle className="w-4 h-4 text-first" />
+                      </button>
+                    </th>
+                    <th className="py-2 px-4 text-center">Staff</th>
+                    <th className="py-2 px-4 pr-10 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredWorkspaces
+                    .slice(0, displayCount)
+                    .map((workspace) => (
+                      <tr
+                        key={workspace.id}
+                        className="border-t border-[#e0e0e0] hover:bg-gray-50"
+                      >
+                        <td className="py-3 px-4">{workspace.name}</td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="px-3 py-1 rounded-full">
+                            {workspace.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          {workspace.staffCount}
+                        </td>
+                        <td className="py-3 px-4">
+                          <Link
+                            to={`/Layout/workspace/${workspace.id}`}
+                            className="flex justify-end gap-2 hover:underline font-semibold"
+                          >
+                            <Icircle className="size-4" />
+                            View Details
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+            {displayCount < filteredWorkspaces.length && (
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setDisplayCount(displayCount + 2)}
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+                >
+                  <RefreshIcon className="w-4 h-4 text-fourth" />
+                  Load More
+                </button>
+              </div>
+            )}
           </div>
         </div>
+
         {showCreate && (
           <CreateWorkspaceModal onClose={() => setShowCreate(false)} />
         )}

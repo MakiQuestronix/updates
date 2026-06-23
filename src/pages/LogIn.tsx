@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/AuthStore";
 
 import LogoIcon from "../assets/Logo.svg?react";
-import Google from "../assets/Google.svg";
 import eyeOpen from "../assets/eyeOpen.svg";
 import eyeClose from "../assets/eyeClose.svg";
 
@@ -101,16 +100,6 @@ function LogIn() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    console.log("Google Login Clicked");
-
-    //backend logic here if di man need google will remove this.
-
-    navigate("/Layout/dashboard");
-
-    // Redirect sa Google OAuth
-  };
-
   useEffect(() => {
     if (token) {
       navigate("/Layout/dashboard");
@@ -119,139 +108,113 @@ function LogIn() {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row h-screen">
-        <div className="hidden md:block md:w-2/5 h-full bg-linear-[330deg,black,#454545] p-6">
-          <h3 className="font-bold text-4xl text-white mt-30">Ingest IQ</h3>
-          <h1 className="font-bold text-5xl md:text-8xl text-white mt-10">
+      <div className="page-bg flex flex-col md:flex-row h-screen">
+        <div className="flex justify-center items-center md:block h-full px-40">
+          <h3 className="font-semibold text-2xl text-white mt-40 text-shadow">
+            Ingest IQ
+          </h3>
+          <h1 className="font-extrabold text-5xl md:text-8xl text-white mt-8 text-shadow">
             Welcome <br />
             Back!
           </h1>
-          <p className="text-white text-20 mt-40">
+          <p className="text-white text-xl font-semibold mt-10  text-shadow">
             Get started with our powerful data ingestion platform.
           </p>
         </div>
 
-        {/* Right Side */}
-        <div className="w-full md:w-3/5 flex flex-col items-center gap-4 overflow-y-auto items-center justify-center">
-          <div className="flex flex-col items-center">
-            <LogoIcon className="w-20 h-20" />
-            <h1 className="font-bold text-3xl text-black">Ingest IQ</h1>
-          </div>
+        <div className="w-full flex flex-col gap-4 items-center justify-center ">
+          <div className="flex flex-col bg-white rounded-3xl p-10 h-full my-10 w-fit items-center justify-center shadow-2xl">
+            {/* <LogoIcon className="w-20 h-20" /> */}
+            <h1 className="font-black text-3xl text-fourth">Ingest IQ</h1>
 
-          <div className="flex flex-col items-center gap-1">
-            <h1 className="font-bold text-2xl text-black mt-2">Login</h1>
-            <p className="text-16">
-              Welcome back! Please log in to your account.
+            <p className="text-sm mb-10 mt-2">
+              Manage, Process, and Approve Documents Efficiently
             </p>
-          </div>
 
-          <div className="w-full max-w-md">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="Email"
-                className="w-full px-4 py-2 border border-[#828282] rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
-              />
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-
-              <div className="relative w-full">
-                {" "}
+            <div className="w-full max-w-md items-center">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+                <p className="text-sm font-light ml-2">Enter email</p>
                 <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={form.password}
+                  type="email"
+                  name="email"
+                  value={form.email}
                   onChange={handleChange}
-                  placeholder="Password"
-                  className="w-full px-4 py-2 pr-12 border border-[#828282] rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
+                  placeholder="Email"
+                  className="w-full px-4 py-2 border border-[#828282] rounded-full focus:outline-none focus:ring-1 focus:ring-fourth text-sm"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-3 flex items-center"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  <img
-                    src={showPassword ? eyeClose : eyeOpen}
-                    alt={showPassword ? "Hide password" : "Show password"}
-                    className="w-5 h-5"
-                  />
-                </button>
-              </div>
+                {error && <p className="text-red-500 text-sm">{error}</p>}
 
-              {passError && <p className="text-red-500 text-sm">{passError}</p>}
-
-              <div className="flex items-center justify-between w-full max-w-md mt-2">
-                <div className="flex items-center gap-2">
+                <div className="relative w-full">
                   <input
-                    type="checkbox"
-                    id="remember"
-                    name="remember"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    placeholder="Password"
+                    className="w-full px-4 py-2 border border-[#828282] rounded-full focus:outline-none focus:ring-1 focus:ring-fourth"
                   />
-                  <label htmlFor="remember" className="text-black">
-                    Remember me
-                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    <img
+                      src={showPassword ? eyeClose : eyeOpen}
+                      alt={showPassword ? "Hide password" : "Show password"}
+                      className="w-5 h-5"
+                    />
+                  </button>
                 </div>
 
-                <Link
-                  to="/forgot-password"
-                  className="ml-4 text-[#828282] hover:underline hover:text-black"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-              <div className="flex justify-center mt-2">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-black text-white py-2 px-4 rounded-md hover:bg-[#1E1E1E] mt-2 w-full"
-                >
-                  {loading ? "Logging in..." : "Login"}
-                </button>
-              </div>
-            </form>
-          </div>
+                {passError && (
+                  <p className="text-red-500 text-sm">{passError}</p>
+                )}
 
-          <div className="flex items-center gap-4 w-full max-w-md">
-            <hr className="flex-1 border-[#828282]" />
-            <p className="text-[#828282] whitespace-nowrap">or continue with</p>
-            <hr className="flex-1 border-[#828282]" />
-          </div>
+                <div className="flex items-center justify-between w-full max-w-md mt-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="remember"
+                      name="remember"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                    />
+                    <label htmlFor="remember" className="text-fourth">
+                      Remember me
+                    </label>
+                  </div>
 
-          <div className="flex justify-center w-full max-w-md">
-            <button
-              type="button"
-              disabled={loading}
-              className="flex items-center justify-center bg-[#EEEEEE] text-black py-2 px-4 rounded-md hover:bg-[#D3D3D3] mt-2 w-full"
-              onClick={handleGoogleLogin}
-            >
-              <img src={Google} alt="Google Logo" className="w-5 h-5 mr-5" />
-              <p>{loading ? "Logging in..." : "Login with Google"}</p>
-            </button>
-          </div>
-
-          <div className="flex justify-center w-2/5 max-w-md mt-4 text-center">
-            <p className="text-[#828282] text-12">
-              By continuing, you agree to our{" "}
-              <span className="text-black hover:underline">
-                Terms of Service
-              </span>{" "}
-              and{" "}
-              <span className="text-black hover:underline">Privacy Policy</span>
-            </p>
-          </div>
-
-          <div>
-            <p>
-              No account yet?{" "}
-              <Link to="/signup" className="text-blue-500 hover:underline">
-                Go to Signup
-              </Link>
-            </p>
+                  <Link
+                    to="/forgot-password"
+                    className="ml-4 text-[#828282] hover:underline hover:text-fourth"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="flex justify-center mt-2">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="bg-fourth text-white py-2 px-4 rounded-full hover:bg-[#1E1E1E] mt-2 w-full"
+                  >
+                    {loading ? "Logging in..." : "Login"}
+                  </button>
+                </div>
+              </form>
+              <p className="text-[#828282] text-sm w-2/3 text-center justify-self-center py-4 ">
+                By continuing, you agree to our{" "}
+                <span className="text-fourth hover:underline">
+                  Terms of Service
+                </span>{" "}
+                and{" "}
+                <span className="text-fourth hover:underline">
+                  Privacy Policy
+                </span>
+              </p>
+            </div>
           </div>
         </div>
       </div>

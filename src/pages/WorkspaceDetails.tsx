@@ -10,6 +10,7 @@ import AddStaffModal from "../components/AddStaffModal";
 //Icons
 import Pencil from "../assets/pencil.svg?react";
 import Search from "../assets/magnifyingGlass.svg?react";
+import Icircle from "../assets/icircle.svg?react";
 
 function WorkspaceDetails() {
   const { id } = useParams();
@@ -48,110 +49,122 @@ function WorkspaceDetails() {
   }, [id]);
 
   return (
-    <div>
-      <div className="sticky top-0 z-10 bg-white">
-        <Header />
-      </div>
-      <div className="py-2 px-4 overflow-y-auto">
-        <div className="text-md">
-          <Link
-            to={`/Layout/workspace/`}
-            className="hover:underline cursor-pointer"
-          >
-            Workspaces{" "}
-          </Link>
-          <span className="font-medium">
-            {">"} {currentWorkspace?.name}
-          </span>
-        </div>
-        <div className="px-4 pt-4 mt-4 border border-[#E0E0E0] rounded-md">
-          <div className="grid grid-cols-5 bg-black text-white py-2 px-4 font-semibold items-center rounded-t-md t">
-            <p className="justify-self-center">Name</p>
-            <p className="justify-self-center">Description</p>
-            <p className="justify-self-center">Workplace Owner</p>
-            <p className="justify-self-center">Status</p>
-            <p className="justify-self-center">Staff Count</p>
-          </div>
-          <div className="grid grid-cols-5 px-4 py-2 items-center border-b border-[#E0E0E0]  hover:bg-gray-50">
-            <p className="justify-self-center">{currentWorkspace?.name}</p>
-            <p className="justify-self-center">
-              {currentWorkspace?.description}
-            </p>
-            <p className="justify-self-center">
-              {currentWorkspace?.leadCurator?.name}
-            </p>
-            <p className="justify-self-center">{currentWorkspace?.status}</p>
-            <p className="justify-self-center">
-              {currentWorkspace?.staffCount}
-            </p>
-          </div>
-          <div className="flex justify-center px-4 my-2">
-            <button
-              onClick={() => setShowEdit(true)}
-              className="flex justify-center gap-4 hover:bg-[#e0e0e0] rounded-md px-4 py-2"
+    <>
+      <div className="flex px-4 py-2 my-4">
+        <div className="py-2 px-4 overflow-y-auto">
+          <div className="text-md">
+            <Link
+              to={`/Layout/workspace/`}
+              className="hover:underline cursor-pointer"
             >
-              <Pencil className="w-5 h-5 text-black" />
-              <p className="font-semibold">Edit Workspace</p>
-            </button>
+              Workspaces{" "}
+            </Link>
+            <span className="font-medium">
+              {">"} {currentWorkspace?.name}
+            </span>
           </div>
-        </div>
-        <div className="px-4 py-2 mt-4 border border-[#E0E0E0] rounded-md">
-          <p className="text-md font-semibold">Staff Members</p>
-          <div className="flex items-center justify-between my-2">
-            <div className="flex items-center border border-[#e0e0e0] rounded-md px-2">
-              <Search className="size-4" />
-              <input
-                value={searchValue}
-                onChange={handleSearchChange}
-                className="w-full px-2 py-1 outline-none "
-                placeholder="Search staff..."
-              />
+          <div className="px-4 pt-4 mt-4 border border-second rounded-md text-sm">
+            <div className="grid grid-cols-5 bg-fourth text-first py-2 px-4 font-semibold items-center rounded-t-md t">
+              <p>Name</p>
+              <p>Description</p>
+              <p>Workplace Owner</p>
+              <p>Status</p>
+              <p>Staff Count</p>
             </div>
-
-            <button
-              onClick={() => setShowAddStaff(true)}
-              className="bg-black text-white  font-semibold px-8 py-1 rounded-md h-fit hover:bg-[#454545] hover:cursor-pointer"
-            >
-              + Add Staff
-            </button>
-          </div>
-
-          <div className="border border-[#E0E0E0] rounded-md px-4 py-2">
-            <div className="grid grid-cols-4 px-4 py-2 items-center border-b border-[#E0E0E0] hover:bg-gray-50">
-              <p className="justify-self-center font-bold">Name</p>
-              <p className="justify-self-center font-bold">Role</p>
-              <p className="justify-self-center font-bold">Join Date</p>
-              <p className="justify-self-center font-bold">Actions</p>
+            <div className="grid grid-cols-5 px-4 py-2 items-center border-b border-second  hover:bg-gray-50">
+              <p>{currentWorkspace?.name}</p>
+              <p>{currentWorkspace?.description}</p>
+              <p>{currentWorkspace?.owner?.name}</p>
+              <p>{currentWorkspace?.status}</p>
+              <p>{currentWorkspace?.staffCount}</p>
             </div>
-            {filteredMembers.map((member) => (
-              <div
-                key={member.id}
-                className="grid grid-cols-4 px-4 py-2 items-center border-b border-[#E0E0E0] hover:bg-gray-50"
+            <div className="flex justify-center px-4 my-2">
+              <button
+                onClick={() => setShowEdit(true)}
+                className="flex justify-center gap-4 hover:bg-second rounded-md px-4 py-2 text-sm"
               >
-                <p className="justify-self-center">{member.name}</p>
-                <p className="justify-self-center">
-                  {sentenceCase(member.role)}
-                </p>
-                <p className="justify-self-center">
-                  {formatDate(member.joinedAt)}
-                </p>
-
-                <div className="justify-self-center">
-                  <Link
-                    to={`/Layout/workspace/${currentWorkspace?.id}/staff/${member.id}`}
-                    className="font-semibold hover:underline"
-                  >
-                    View Details
-                  </Link>
-                </div>
+                <Pencil className="size-4 text-fourth" />
+                <p className="font-semibold">Edit Workspace</p>
+              </button>
+            </div>
+          </div>
+          <div className="px-4 py-2 mt-4 border border-second rounded-md">
+            <p className="text-md font-semibold">Staff Members</p>
+            <div className="flex items-center justify-between my-2">
+              <div className="flex items-center border border-second rounded-md px-2">
+                <Search className="size-4" />
+                <input
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                  className="w-full px-2 py-1 outline-none "
+                  placeholder="Search staff..."
+                />
               </div>
-            ))}
+
+              <button
+                onClick={() => setShowAddStaff(true)}
+                className="bg-fourth text-first m-2 font-semibold px-4 py-2 text-sm rounded-md h-fit hover:bg-third hover:cursor-pointer"
+              >
+                + Add Staff
+              </button>
+            </div>
+
+            <div className="border border-second rounded-md overflow-hidden">
+              <table className="w-full text-sm table-fixed">
+                <thead>
+                  <tr className="border-b border-second">
+                    <th className="px-4 py-3 text-left font-bold">Name</th>
+                    <th className="px-4 py-3 text-left font-bold">Email</th>
+                    <th className="px-4 py-3 text-left font-bold">Role</th>
+                    <th className="px-4 py-3 text-left font-bold">Join Date</th>
+                    <th className="px-4 py-3 text-centers font-bold">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredMembers.map((member) => (
+                    <tr
+                      key={member.id}
+                      className="border-b border-second last:border-b-0 hover:bg-gray-50"
+                    >
+                      <td className="px-4 py-3">{member.name}</td>
+
+                      <td className="px-4 py-3 truncate text-[#0A409A] underline">
+                        <a href={`mailto:${member.email}`}>
+                          {sentenceCase(member.email)}
+                        </a>
+                      </td>
+
+                      <td className="px-4 py-3">{sentenceCase(member.role)}</td>
+
+                      <td className="px-4 py-3">
+                        {formatDate(member.joinedAt)}
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <Link
+                          to={`/Layout/workspace/${currentWorkspace?.id}/staff/${member.id}`}
+                          className="flex justify-center gap-2 font-semibold hover:underline"
+                        >
+                          <Icircle className="size-4" />
+                          View Details
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
+        {showEdit && <EditWorkspaceModal onClose={() => setShowEdit(false)} />}
+        {showAddStaff && (
+          <AddStaffModal onClose={() => setShowAddStaff(false)} />
+        )}
       </div>
-      {showEdit && <EditWorkspaceModal onClose={() => setShowEdit(false)} />}
-      {showAddStaff && <AddStaffModal onClose={() => setShowAddStaff(false)} />}
-    </div>
+    </>
   );
 }
 
