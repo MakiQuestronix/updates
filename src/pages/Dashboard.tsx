@@ -1,262 +1,268 @@
 import Header from "../components/Header";
 import StatCard from "../components/StatCard";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDashboardStore } from "../store/DashboardStore";
-import { useWorkspaceStore } from "../store/workspaceStore";
-import { useKnowledgeStore } from "../store/KnowledgeStore";
-import { useActivityLogStore } from "../store/ActivityLogStore";
 
 import RefreshIcon from "../assets/refresh.svg?react";
 import FolderIcon from "../assets/folder.svg?react";
+import HamburgerButton from "../components/HamburgerButton";
 import { Link } from "react-router";
 
+import { formatRelativeDate } from "../utils/utils";
+
 const getCurrentTime = () =>
-  new Date().toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 function Dashboard() {
-  const { mainStats, fetchDashboardData } = useDashboardStore();
-  const { workspaces, fetchWorkspaces } = useWorkspaceStore();
-  const { knowledge, fetchKnowledge } = useKnowledgeStore();
-  const { activityLogs, fetchActivityLog } = useActivityLogStore();
+  const {
+    stats,
+    workspaces,
+    recentKnowledge,
+    activityLogs,
+    processingStatus,
+    isLoading,
+    fetchDashboardData,
+  } = useDashboardStore();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [updatedTime, setUpdatedTime] = useState(getCurrentTime());
 
+  const refreshAll = useCallback(async () => {
+    await fetchDashboardData();
+    setUpdatedTime(getCurrentTime());
+  }, [fetchDashboardData]);
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
 
-    setUpdatedTime(getCurrentTime());
+    const start = Date.now();
 
-    await Promise.all([
-      fetchDashboardData(),
-      fetchWorkspaces(),
-      fetchKnowledge(),
-    ]);
+    await refreshAll();
+
+    //remove this for backend
+    const elapsed = Date.now() - start;
+    const minDuration = 1000;
+
+    if (elapsed < minDuration) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, minDuration - elapsed),
+      );
+    }
+
     setIsRefreshing(false);
   };
 
-  const handleOpen = () => {
-    //open workspace here
-  };
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  //maga fetch every 30 secs
   useEffect(() => {
-    const fetchAll = () => {
-      fetchDashboardData();
-      fetchWorkspaces();
-      fetchKnowledge();
-      fetchActivityLog();
-      setUpdatedTime(getCurrentTime());
-    };
-
-    fetchAll();
-
-    const interval = setInterval(() => {
-      fetchAll();
-    }, 30000);
-
+    refreshAll();
+    const interval = setInterval(refreshAll, 30000);
     return () => clearInterval(interval);
-  }, [fetchDashboardData, fetchWorkspaces, fetchKnowledge, fetchActivityLog]);
+  }, [refreshAll]);
 
   return (
-    <div className="flex flex-col h-screen text-sm sm:text-sm">
-      <Header />
-
-      <div className="flex-1 overflow-y-auto pt-2 pb-10 px-4">
-        <div className="flex flex-col gap-3 md:flex-row items-start md:items-center justify-between px-4 py-2">
-          <h1 className=" text-xl sm:text-2xl font-semibold">Dashboard</h1>
-          <button
-            onClick={handleRefresh}
-            className="flex items-center justify-center px-3 sm:px-4 py-2 gap-3 h-9 w-full sm:w-40 bg-black rounded-lg mr-0 sm:mr-4 hover:bg-gray-800 transition-colors"
-          >
-            <RefreshIcon
-              className="size-4 text-white"
-              style={{
-                transform: isRefreshing ? "rotate(360deg)" : "rotate(0deg)",
-                transition: "transform 0.4s linear",
-              }}
-            />
-            <p className=" text-white text-sm">Refresh Now</p>
-          </button>
-        </div>
-
-        <div className="px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-            {mainStats.map((stat, index) => (
-              <StatCard
-                key={index}
-                name={stat.name}
-                amount={stat.amount}
-                highlight={stat.name === "Active Workspaces"}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="px-4 py-2 rounded-lg shadow-xs border border-[#E0E0E0] m-4">
-          <div className="flex sm:flex-row items-start sm:items-center justify-between gap-3">
-            <h6 className=" text-sm font-semibold">Active Workspaces</h6>
-            <Link
-              to={`/Layout/workspace/`}
-              className="text-sm font-semibold hover:underline"
+    <>
+      <div className="px-2 sm:px-10 py-2">
+        <div className="flex-1 overflow-y-auto px-4 py-2">
+          <div className="flex flex-row gap-3 justify-between">
+            <h1 className="text-2xl font-semibold text-sixth">Dashboard</h1>
+            <button
+              onClick={handleRefresh}
+              disabled={isLoading}
+              className="group flex items-center justify-center px-3 py-2 my-2 gap-3 h-fit w-auto sm:w-40 bg-fourth rounded-lg  hover:bg-third transition-colors"
             >
-              <p>
-                View All <span className="text-lg">→</span>
+              <RefreshIcon
+                className={`size-4 text-first group-hover:text-black ${isRefreshing ? "animate-spin" : ""}`}
+              />
+              <p className="text-first text-sm group-hover:text-black">
+                Refresh Now
               </p>
-            </Link>
+            </button>
           </div>
-          <hr className="border-b border-[#E0E0E0] my-2" />
 
-          <div className="space-y-3">
-            {workspaces.map((workspace) => (
-              <div
-                key={workspace.id}
-                className="grid grid-cols-3 items-center py-2 px-2 sm:px-3 hover:bg-gray-50 rounded-md cursor-pointer"
-              >
-                <div className="flex justify-self-start items-center gap-2 text-sm sm:text-sm">
-                  <FolderIcon className="w-5 h-5 text-black" />
-                  <p className="font-inter text-sm">{workspace.name}</p>
-                </div>
-
-                <p className=" text-sm sm:text-sm justify-self-center">
-                  {workspace.knowledgeCount} Entries
-                </p>
-
-                <Link
-                  className="text-sm justify-self-end font-semibold hover:text-gray-600"
-                  to={`/Layout/workspace/${workspace.id}`}
-                >
-                  <p>Open →</p>
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="px-4 py-2 flex flex-col gap-4 sm:flex-row items-stretch">
-          <div className="rounded-lg shadow-sm p-2 sm:p-3 border border-[#E0E0E0] w-full sm:w-1/3">
-            <p className="text-sm sm:text-base font-semibold">
-              Recent Knowledge Entries
-            </p>
-            <hr className="border-b border-[#E0E0E0] my-2" />
-            <div className="space-y-3">
-              {knowledge.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex flex-1 items-center gap-2 py-1 px-2 sm:px-3 hover:bg-gray-50 rounded-md justify-between"
-                >
-                  <p className="text-sm sm:text-sm">{item.name}</p>
-
-                  <span
-                    className={`inline-block w-4 h-4 rounded-full shadow-[inset_0_4px_4px_rgba(255,255,255,0.8)] ${
-                      item.status === 0
-                        ? "bg-green-500 border border-green-500"
-                        : item.status === 1
-                          ? "bg-red-500 border border-red-500"
-                          : "bg-[#F1D104] border border-[#F1D104] "
-                    }`}
-                  />
-                </div>
+          {/* Stats */}
+          <div className="my-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {stats.map((stat, index) => (
+                <StatCard
+                  key={index}
+                  name={stat.name}
+                  amount={stat.amount.toString()}
+                  highlight={stat.name === "Active Workspaces"}
+                  hoverBgColor="hover:bg-fourth"
+                  textHoverColor="hover:text-white"
+                  amountSize="3xl"
+                />
               ))}
             </div>
           </div>
-          <div className="rounded-lg shadow-sm p-2 sm:p-3 border border-[#E0E0E0] w-full flex-1">
-            <p className="text-sm sm:text-sm font-semibold">
-              Processing Status Summary
-            </p>
 
-            <hr className="border-b border-[#E0E0E0] my-2" />
+          <div className="px-4 py-2 rounded-lg shadow-xs border border-[#e0e0e0]/50 my-2">
+            <div className="flex items-center justify-between px-4 pt-2">
+              <h6 className="text-sm font-semibold">Active Workspaces</h6>
+              <Link
+                to="/Layout/workspace/"
+                className="text-sm font-semibold hover:underline"
+              >
+                View All <span className="text-lg">→</span>
+              </Link>
+            </div>
+            <hr className="border-b-0.5 border-[#e0e0e0]/50 my-2 mx-2" />
+            <div className="overflow-x-auto">
+              <table className="w-full table-fixed text-sm">
+                <tbody>
+                  {workspaces.map((workspace) => (
+                    <tr
+                      key={workspace.id}
+                      className="border-b border-[#e0e0e0]/30 last:border-b-0 hover:bg-second/20"
+                    >
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <FolderIcon className="w-5 h-5 text-seventh shrink-0" />
+                          <p className="font-semibold truncate">
+                            {workspace.name}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {workspace.knowledgeCount} Entries
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <Link
+                          className="font-semibold hover:text-third"
+                          to={`/Layout/workspace/${workspace.id}`}
+                        >
+                          Open →
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-1">
-                  <p className="text-sm">Processing</p>
-                  <p className="text-sm font-medium">80%</p>
-                </div>
-
-                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="py-2 flex flex-col gap-4 sm:flex-row items-stretch my-2">
+            <div className="rounded-lg shadow-sm p-2 sm:p-3 border border-[#e0e0e0]/50 w-full sm:w-1/3">
+              <p className="text-sm font-semibold">Recent Knowledge Entries</p>
+              <hr className="border-b-0.5 border-[#e0e0e0]/50 my-2" />
+              <div className="space-y-3">
+                {recentKnowledge.map((item) => (
                   <div
-                    className="h-full bg-black rounded-full transition-all duration-500"
-                    style={{ width: "80%" }}
-                  />
-                </div>
+                    key={item.id}
+                    className="flex items-center gap-2 py-1 px-2 sm:px-3 hover:bg-second rounded-md justify-between"
+                  >
+                    <p className="text-sm font-semibold">{item.name}</p>
+                    <span
+                      className={`inline-block w-4 h-4 rounded-full shadow-[inset_0_4px_4px_rgba(255,255,255,0.8)] ${
+                        item.status === "Active"
+                          ? "bg-status-active border border-status-active"
+                          : item.status === "Inactive"
+                            ? "bg-status-inactive/60 border border-status-inactive/30"
+                            : "bg-status-pending border border-status-pending"
+                      }`}
+                    />
+                  </div>
+                ))}
               </div>
+            </div>
 
-              <div>
-                <div className="flex justify-between mb-1">
-                  <p className="text-sm">Completed</p>
-                  <p className="text-sm font-medium">100%</p>
-                </div>
-
-                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="rounded-lg shadow-sm p-2 sm:p-3 border border-[#e0e0e0]/50 w-full flex-1">
+              <p className="text-sm font-semibold">Processing Status Summary</p>
+              <hr className="border-b-0.5 border-[#e0e0e0]/50 my-2" />
+              <div className="space-y-4">
+                {[
+                  { label: "Processing", value: processingStatus.processing },
+                  { label: "Completed", value: processingStatus.completed },
+                  { label: "Failed", value: processingStatus.failed },
+                ].map(({ label, value }) => (
                   <div
-                    className="h-full bg-black rounded-full transition-all duration-500"
-                    style={{ width: "100%" }}
-                  />
-                </div>
-              </div>
+                    key={label}
+                    className="grid grid-cols-8 items-center gap-2 pl-2 sm:pl-4"
+                  >
+                    <p className="text-sm font-semibold col-span-2 sm:col-span-1">
+                      {label}
+                    </p>
 
-              {/* Failed */}
-              <div>
-                <div className="flex justify-between mb-1">
-                  <p className="text-sm">Failed</p>
-                  <p className="text-sm font-medium">20%</p>
-                </div>
-
-                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-black rounded-full transition-all duration-500"
-                    style={{ width: "20%" }}
-                  />
-                </div>
+                    <div className="col-span-5 sm:col-span-6 h-2 bg-first rounded-full overflow-hidden border border-[#e0e0e0]/34 shadow-xs">
+                      <div
+                        className="h-full bg-[#B148D2] rounded-full transition-all duration-500"
+                        style={{ width: `${value}%` }}
+                      />
+                    </div>
+                    <p className="text-sm font-medium pl-4">{value}%</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="px-4 py-2 rounded-lg shadow-xs border border-[#E0E0E0] m-4">
-          <p className="text-sm sm:text-sm font-semibold">
-            System Activity Log
-          </p>
-          <hr className="border-b border-[#E0E0E0] my-2" />
-          <div className="grid grid-cols-5  items-center text-sm font-semibold pb-2">
-            <p>Name</p>
-            <p>Size</p>
-            <p>Status</p>
-            <p>Owner</p>
-            <p>Last Modified</p>
-          </div>
-          <div>
-            {activityLogs.map((item) => (
-              <div
-                key={item.id}
-                className="grid grid-cols-5 py-2  items-center text-sm "
-              >
-                <p>{item.name}</p>
-                <p>{item.size.toFixed(2)} MB</p>
-                <p>
-                  {item.status === 0
-                    ? "Completed"
-                    : item.status === 1
-                      ? "Failed"
-                      : "Processing"}
-                </p>
-                <p>{item.owner}</p>
-                <p>{item.lastModified}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+          <div className="px-4 py-2 rounded-lg shadow-xs border border-[#e0e0e0]/50">
+            <p className="text-sm font-semibold">System Activity Log</p>
+            <hr className="border-b-0.5 border-[#e0e0e0]/50 my-2" />
 
-        <div className="px-4 py-2">
-          <p className="text-sm">Last Updated: {updatedTime}</p>
-          <p className="text-xs">Auto refereshes every 30 seconds</p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-125">
+                <thead>
+                  <tr className="text-left border-b border-[#e0e0e0]/50">
+                    <th className="py-2 font-semibold w-2/5">Name</th>
+                    <th className="py-2 px-4 font-semibold w-16">Size</th>
+                    <th className="py-2 font-semibold text-center w-24">
+                      Status
+                    </th>
+                    <th className="py-2 font-semibold text-center w-24">
+                      Owner
+                    </th>
+                    <th className="py-2 px-4 font-semibold text-right w-28">
+                      Last Modified
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activityLogs.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="border-b border-[#e0e0e0]/30 last:border-b-0"
+                    >
+                      <td className="py-3 font-semibold">{item.name}</td>
+
+                      <td className="py-3  px-4">{item.size.toFixed(2)} MB</td>
+
+                      <td className="py-3 text-center">
+                        <span
+                          className={`inline-block py-1 px-3 rounded-full text-xs text-center font-semibold whitespace-nowrap ${
+                            item.status === "Complete"
+                              ? "bg-status-active/20 text-status-active"
+                              : item.status === "Pending"
+                                ? "bg-[#4285F4]/20 text-[#4285F4]"
+                                : item.status === "Processing"
+                                  ? "bg-status-pending/20 text-status-pending"
+                                  : "bg-status-inactive/20 text-status-inactive"
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                      </td>
+
+                      <td className="py-3 text-center">{item.owner}</td>
+
+                      <td className="py-3 text-right  px-4">
+                        {formatRelativeDate(item.lastModified)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="py-4">
+            <p className="text-sm">Last Updated: {updatedTime}</p>
+            <p className="text-xs">Auto refreshes every 30 seconds</p>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

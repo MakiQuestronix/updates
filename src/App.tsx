@@ -12,6 +12,7 @@ import Documents from "./pages/Documents";
 import Dashboard from "./pages/Dashboard";
 import WorkspaceDetails from "./pages/WorkspaceDetails";
 import WorkspaceStaff from "./pages/WorkspaceStaff";
+import KnowledgeDetails from "./pages/KnowledgeDetails";
 
 function App() {
   return (
@@ -29,7 +30,10 @@ function App() {
             <Route path=":id" element={<WorkspaceDetails />} />
             <Route path=":id/staff/:staffId" element={<WorkspaceStaff />} />
           </Route>
-          <Route path="knowledges" element={<Knowledges />} />
+          <Route path="knowledges">
+            <Route index element={<Knowledges />} />
+            <Route path=":id" element={<KnowledgeDetails />} />
+          </Route>
           <Route path="documents" element={<Documents />} />
         </Route>
       </Routes>

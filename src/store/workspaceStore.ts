@@ -1,7 +1,21 @@
 import { create } from "zustand";
 
-export type WorkspaceRole = "OWNER" | "APPROVER" | "EDITOR";
-export type WorkspaceStatus = "ACTIVE" | "INACTIVE";
+export type Workspace = {
+  id: number;
+  name: string;
+  description?: string;
+  owner: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  knowledgeCount: number;
+  staffCount: number;
+  documentCount: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export type MemberPermissions = {
   workspaceAccess: boolean;
@@ -12,6 +26,19 @@ export type MemberPermissions = {
   manageMembers: boolean;
 };
 
+export type WorkspaceMember = {
+  id: number;
+  workspaceId: number;
+  name: string;
+  email: string;
+  role: string;
+  joinedAt: string;
+  lastActive: string;
+  photo: string;
+  status: string;
+  permissions: MemberPermissions;
+};
+
 export type ActivityItem = {
   description: string;
   timestamp: string;
@@ -20,36 +47,6 @@ export type ActivityItem = {
 export type TimelineSection = {
   label: string;
   items: string[];
-};
-
-export type Workspace = {
-  id: number;
-  name: string;
-  description?: string;
-  leadCurator: {
-    id: number;
-    name: string;
-    email: string;
-  };
-  knowledgeCount: number;
-  staffCount: number;
-  documentCount: number;
-  status: WorkspaceStatus;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type WorkspaceMember = {
-  id: number;
-  workspaceId: number;
-  name: string;
-  email: string;
-  role: WorkspaceRole;
-  joinedAt: string;
-  lastActive: string;
-  photo: string;
-  status: WorkspaceStatus;
-  permissions: MemberPermissions;
 };
 
 export type StaffActivity = {
@@ -69,8 +66,8 @@ export type WorkspaceStore = {
   currentWorkspace: Workspace | null;
   members: WorkspaceMember[];
   allMembers: WorkspaceMember[];
-  staffActivities: StaffActivity[];
   currentStaffActivity: StaffActivity | null;
+  isLoading: boolean;
 
   fetchWorkspaces: () => Promise<void>;
   fetchWorkspaceById: (id: number) => Promise<void>;
@@ -79,86 +76,134 @@ export type WorkspaceStore = {
   fetchStaffActivity: (memberId: number) => Promise<void>;
 };
 
-//update this based on user stories
-const ownerPermissions: MemberPermissions = {
-  workspaceAccess: true,
-  uploadDocuments: true,
-  createKnowledgeBases: true,
-  approveDocuments: true,
-  archiveDocuments: true,
-  manageMembers: true,
-};
-
-const approverPermissions: MemberPermissions = {
-  workspaceAccess: true,
-  uploadDocuments: true,
-  createKnowledgeBases: true,
-  approveDocuments: true,
-  archiveDocuments: true,
-  manageMembers: false,
-};
-
-const editorPermissions: MemberPermissions = {
-  workspaceAccess: true,
-  uploadDocuments: true,
-  createKnowledgeBases: false,
-  approveDocuments: false,
-  archiveDocuments: false,
-  manageMembers: false,
-};
+const dummyWorkspaces: Workspace[] = [
+  {
+    id: 1,
+    name: "HR Department",
+    description: "Employee policies and onboarding documents",
+    owner: { id: 1, name: "John Smith", email: "john@company.com" },
+    knowledgeCount: 12,
+    staffCount: 4,
+    documentCount: 247,
+    status: "Active",
+    createdAt: "Jan 1, 2026",
+    updatedAt: "Jun 15, 2026",
+  },
+  {
+    id: 2,
+    name: "Engineering Department",
+    description: "Technical specifications and development guides",
+    owner: { id: 5, name: "Sarah Lee", email: "sarah@company.com" },
+    knowledgeCount: 27,
+    staffCount: 5,
+    documentCount: 189,
+    status: "Active",
+    createdAt: "Jan 15, 2026",
+    updatedAt: "Jun 14, 2026",
+  },
+  {
+    id: 3,
+    name: "Customer Support",
+    description: "Support procedures and FAQs",
+    owner: { id: 10, name: "Daniel Santos", email: "daniel@company.com" },
+    knowledgeCount: 9,
+    staffCount: 4,
+    documentCount: 134,
+    status: "Active",
+    createdAt: "Feb 1, 2026",
+    updatedAt: "Jun 13, 2026",
+  },
+  {
+    id: 4,
+    name: "Operations Department",
+    description: "Operational manuals and internal processes",
+    owner: { id: 14, name: "Olivia Martinez", email: "olivia@company.com" },
+    knowledgeCount: 18,
+    staffCount: 4,
+    documentCount: 201,
+    status: "Inactive",
+    createdAt: "Feb 20, 2026",
+    updatedAt: "Jun 12, 2026",
+  },
+];
 
 const dummyMembers: WorkspaceMember[] = [
+  // HR Department
   {
     id: 1,
     workspaceId: 1,
     name: "John Smith",
     email: "john.smith@company.com",
-    role: "OWNER",
-    joinedAt: "2026-01-10",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: ownerPermissions,
+    role: "Owner",
+    joinedAt: "Jan 10, 2026",
+    lastActive: "Today, 10:34 AM",
+    photo: "https://i.pravatar.cc/150?img=1",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: true,
+      approveDocuments: true,
+      archiveDocuments: true,
+      manageMembers: true,
+    },
   },
   {
     id: 2,
     workspaceId: 1,
     name: "Jane Doe",
     email: "jane.doe@company.com",
-    role: "APPROVER",
-    joinedAt: "2026-02-15",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: approverPermissions,
+    role: "Approver",
+    joinedAt: "Feb 15, 2026",
+    lastActive: "Today, 09:20 AM",
+    photo: "https://i.pravatar.cc/150?img=2",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: true,
+      approveDocuments: true,
+      archiveDocuments: true,
+      manageMembers: false,
+    },
   },
   {
     id: 3,
     workspaceId: 1,
     name: "Mark Cruz",
     email: "mark.cruz@company.com",
-    role: "EDITOR",
-    joinedAt: "2026-03-01",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: editorPermissions,
+    role: "Editor",
+    joinedAt: "Mar 1, 2026",
+    lastActive: "Yesterday, 3:45 PM",
+    photo: "https://i.pravatar.cc/150?img=3",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: false,
+      approveDocuments: false,
+      archiveDocuments: false,
+      manageMembers: false,
+    },
   },
   {
     id: 4,
     workspaceId: 1,
     name: "Emily Davis",
     email: "emily.davis@company.com",
-    role: "EDITOR",
-    joinedAt: "2026-03-15",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: editorPermissions,
+    role: "Editor",
+    joinedAt: "Mar 15, 2026",
+    lastActive: "Today, 11:00 AM",
+    photo: "https://i.pravatar.cc/150?img=4",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: false,
+      approveDocuments: false,
+      archiveDocuments: false,
+      manageMembers: false,
+    },
   },
 
   // Engineering Department
@@ -167,65 +212,95 @@ const dummyMembers: WorkspaceMember[] = [
     workspaceId: 2,
     name: "Sarah Lee",
     email: "sarah.lee@company.com",
-    role: "OWNER",
-    joinedAt: "2026-01-22",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: ownerPermissions,
+    role: "Owner",
+    joinedAt: "Jan 22, 2026",
+    lastActive: "Today, 08:50 AM",
+    photo: "https://i.pravatar.cc/150?img=5",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: true,
+      approveDocuments: true,
+      archiveDocuments: true,
+      manageMembers: true,
+    },
   },
   {
     id: 6,
     workspaceId: 2,
     name: "Mike Johnson",
     email: "mike.johnson@company.com",
-    role: "APPROVER",
-    joinedAt: "2026-02-10",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: approverPermissions,
+    role: "Approver",
+    joinedAt: "Feb 10, 2026",
+    lastActive: "Today, 10:10 AM",
+    photo: "https://i.pravatar.cc/150?img=6",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: true,
+      approveDocuments: true,
+      archiveDocuments: true,
+      manageMembers: false,
+    },
   },
   {
     id: 7,
     workspaceId: 2,
     name: "Robert Garcia",
     email: "robert.garcia@company.com",
-    role: "EDITOR",
-    joinedAt: "2026-02-25",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: editorPermissions,
+    role: "Editor",
+    joinedAt: "Feb 25, 2026",
+    lastActive: "Yesterday, 5:30 PM",
+    photo: "https://i.pravatar.cc/150?img=7",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: false,
+      approveDocuments: false,
+      archiveDocuments: false,
+      manageMembers: false,
+    },
   },
   {
     id: 8,
     workspaceId: 2,
     name: "Kevin Tan",
     email: "kevin.tan@company.com",
-    role: "EDITOR",
-    joinedAt: "2026-03-01",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: editorPermissions,
+    role: "Editor",
+    joinedAt: "Mar 1, 2026",
+    lastActive: "Today, 09:00 AM",
+    photo: "https://i.pravatar.cc/150?img=8",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: false,
+      approveDocuments: false,
+      archiveDocuments: false,
+      manageMembers: false,
+    },
   },
   {
     id: 9,
     workspaceId: 2,
     name: "Lisa Wong",
     email: "lisa.wong@company.com",
-    role: "EDITOR",
-    joinedAt: "2026-03-10",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: editorPermissions,
+    role: "Editor",
+    joinedAt: "Mar 10, 2026",
+    lastActive: "Today, 07:45 AM",
+    photo: "https://i.pravatar.cc/150?img=9",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: false,
+      approveDocuments: false,
+      archiveDocuments: false,
+      manageMembers: false,
+    },
   },
 
   // Customer Support
@@ -234,52 +309,76 @@ const dummyMembers: WorkspaceMember[] = [
     workspaceId: 3,
     name: "Daniel Santos",
     email: "daniel.santos@company.com",
-    role: "OWNER",
-    joinedAt: "2026-02-01",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: ownerPermissions,
+    role: "Owner",
+    joinedAt: "Feb 1, 2026",
+    lastActive: "Today, 10:34 AM",
+    photo: "https://i.pravatar.cc/150?img=10",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: true,
+      approveDocuments: true,
+      archiveDocuments: true,
+      manageMembers: true,
+    },
   },
   {
     id: 11,
     workspaceId: 3,
     name: "Grace Lim",
     email: "grace.lim@company.com",
-    role: "APPROVER",
-    joinedAt: "2026-02-05",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: approverPermissions,
+    role: "Approver",
+    joinedAt: "Feb 5, 2026",
+    lastActive: "Today, 08:30 AM",
+    photo: "https://i.pravatar.cc/150?img=11",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: true,
+      approveDocuments: true,
+      archiveDocuments: true,
+      manageMembers: false,
+    },
   },
   {
     id: 12,
     workspaceId: 3,
     name: "Anna Reyes",
     email: "anna.reyes@company.com",
-    role: "EDITOR",
-    joinedAt: "2026-02-20",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: editorPermissions,
+    role: "Editor",
+    joinedAt: "Feb 20, 2026",
+    lastActive: "Yesterday, 4:00 PM",
+    photo: "https://i.pravatar.cc/150?img=12",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: false,
+      approveDocuments: false,
+      archiveDocuments: false,
+      manageMembers: false,
+    },
   },
   {
     id: 13,
     workspaceId: 3,
     name: "Chris Navarro",
     email: "chris.navarro@company.com",
-    role: "EDITOR",
-    joinedAt: "2026-03-01",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: editorPermissions,
+    role: "Editor",
+    joinedAt: "Mar 1, 2026",
+    lastActive: "Today, 09:55 AM",
+    photo: "https://i.pravatar.cc/150?img=13",
+    status: "Active",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: false,
+      approveDocuments: false,
+      archiveDocuments: false,
+      manageMembers: false,
+    },
   },
 
   // Operations Department
@@ -288,57 +387,80 @@ const dummyMembers: WorkspaceMember[] = [
     workspaceId: 4,
     name: "Olivia Martinez",
     email: "olivia.martinez@company.com",
-    role: "OWNER",
-    joinedAt: "2026-02-20",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: ownerPermissions,
+    role: "Owner",
+    joinedAt: "Feb 20, 2026",
+    lastActive: "Jun 12, 2026",
+    photo: "https://i.pravatar.cc/150?img=14",
+    status: "Inactive",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: true,
+      approveDocuments: true,
+      archiveDocuments: true,
+      manageMembers: true,
+    },
   },
   {
     id: 15,
     workspaceId: 4,
     name: "Nathan Brooks",
     email: "nathan.brooks@company.com",
-    role: "APPROVER",
-    joinedAt: "2026-02-25",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: approverPermissions,
+    role: "Approver",
+    joinedAt: "Feb 25, 2026",
+    lastActive: "Jun 11, 2026",
+    photo: "https://i.pravatar.cc/150?img=15",
+    status: "Inactive",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: true,
+      approveDocuments: true,
+      archiveDocuments: true,
+      manageMembers: false,
+    },
   },
   {
     id: 16,
     workspaceId: 4,
     name: "Sophia Chen",
     email: "sophia.chen@company.com",
-    role: "EDITOR",
-    joinedAt: "2026-03-01",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: editorPermissions,
+    role: "Editor",
+    joinedAt: "Mar 1, 2026",
+    lastActive: "Jun 10, 2026",
+    photo: "https://i.pravatar.cc/150?img=16",
+    status: "Inactive",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: false,
+      approveDocuments: false,
+      archiveDocuments: false,
+      manageMembers: false,
+    },
   },
   {
     id: 17,
     workspaceId: 4,
     name: "Ethan Walker",
     email: "ethan.walker@company.com",
-    role: "EDITOR",
-    joinedAt: "2026-03-15",
-    photo:
-      "https://th.bing.com/th/id/OIP.xqQ6gPsQK9vP4CufBeJzHgAAAA?w=180&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
-    status: "ACTIVE",
-    lastActive: "Today, 10:34 A.M.",
-    permissions: editorPermissions,
+    role: "Editor",
+    joinedAt: "Mar 15, 2026",
+    lastActive: "Jun 9, 2026",
+    photo: "https://i.pravatar.cc/150?img=17",
+    status: "Inactive",
+    permissions: {
+      workspaceAccess: true,
+      uploadDocuments: true,
+      createKnowledgeBases: false,
+      approveDocuments: false,
+      archiveDocuments: false,
+      manageMembers: false,
+    },
   },
 ];
 
 const dummyStaffActivities: StaffActivity[] = [
-  // John Smith – OWNER, HR
   {
     memberId: 1,
     stats: {
@@ -360,10 +482,7 @@ const dummyStaffActivities: StaffActivity[] = [
       { description: "Archived Onboarding_2023.pdf", timestamp: "3 days ago" },
     ],
     timeline: [
-      {
-        label: "Today",
-        items: ["Approved Employee_Handbook.pdf"],
-      },
+      { label: "Today", items: ["Approved Employee_Handbook.pdf"] },
       {
         label: "Yesterday",
         items: [
@@ -377,8 +496,6 @@ const dummyStaffActivities: StaffActivity[] = [
       },
     ],
   },
-
-  // Jane Doe – APPROVER, HR (matches the UI screenshots)
   {
     memberId: 2,
     stats: {
@@ -392,7 +509,6 @@ const dummyStaffActivities: StaffActivity[] = [
         description: "Approved Employee_Handbook.pdf",
         timestamp: "2 hours ago",
       },
-      { description: "Added John Doe to workspace", timestamp: "Yesterday" },
       {
         description: "Created Knowledge Base: Engineering Docs",
         timestamp: "Yesterday",
@@ -400,30 +516,17 @@ const dummyStaffActivities: StaffActivity[] = [
       { description: "Archived Policy_2024.pdf", timestamp: "3 days ago" },
     ],
     timeline: [
-      {
-        label: "Today",
-        items: [
-          "Added John Doe to workspace",
-          "Created Knowledge Base: Engineering Docs",
-          "Archived Policy_2024.pdf",
-        ],
-      },
+      { label: "Today", items: ["Approved Employee_Handbook.pdf"] },
       {
         label: "Yesterday",
         items: [
-          "Added John Doe to workspace",
           "Created Knowledge Base: Engineering Docs",
           "Archived Policy_2024.pdf",
         ],
       },
-      {
-        label: "Last Week",
-        items: ["Added 3 staff members"],
-      },
+      { label: "Last Week", items: ["Added 3 staff members"] },
     ],
   },
-
-  // Mark Cruz – EDITOR, HR
   {
     memberId: 3,
     stats: {
@@ -444,8 +547,6 @@ const dummyStaffActivities: StaffActivity[] = [
       { label: "Yesterday", items: ["Edited Leave_Policy.docx"] },
     ],
   },
-
-  // Emily Davis – EDITOR, HR
   {
     memberId: 4,
     stats: {
@@ -462,8 +563,6 @@ const dummyStaffActivities: StaffActivity[] = [
       { label: "Last Week", items: ["Created Knowledge Base: HR Docs"] },
     ],
   },
-
-  // Sarah Lee – OWNER, Engineering
   {
     memberId: 5,
     stats: {
@@ -501,8 +600,6 @@ const dummyStaffActivities: StaffActivity[] = [
       },
     ],
   },
-
-  // Mike Johnson – APPROVER, Engineering
   {
     memberId: 6,
     stats: {
@@ -523,8 +620,6 @@ const dummyStaffActivities: StaffActivity[] = [
       { label: "Yesterday", items: ["Approved CI_CD_Runbook.pdf"] },
     ],
   },
-
-  // Robert Garcia – EDITOR, Engineering
   {
     memberId: 7,
     stats: {
@@ -544,8 +639,6 @@ const dummyStaffActivities: StaffActivity[] = [
       { label: "Last Week", items: ["Updated API docs"] },
     ],
   },
-
-  // Kevin Tan – EDITOR, Engineering
   {
     memberId: 8,
     stats: {
@@ -564,8 +657,6 @@ const dummyStaffActivities: StaffActivity[] = [
       { label: "Yesterday", items: ["Uploaded Frontend_Standards.pdf"] },
     ],
   },
-
-  // Lisa Wong – EDITOR, Engineering
   {
     memberId: 9,
     stats: {
@@ -579,8 +670,6 @@ const dummyStaffActivities: StaffActivity[] = [
     ],
     timeline: [{ label: "Today", items: ["Uploaded Testing_Checklist.pdf"] }],
   },
-
-  // Daniel Santos – OWNER, Customer Support
   {
     memberId: 10,
     stats: {
@@ -605,8 +694,6 @@ const dummyStaffActivities: StaffActivity[] = [
       { label: "Last Week", items: ["Added 2 staff members"] },
     ],
   },
-
-  // Grace Lim – APPROVER, Customer Support
   {
     memberId: 11,
     stats: {
@@ -620,8 +707,6 @@ const dummyStaffActivities: StaffActivity[] = [
     ],
     timeline: [{ label: "Today", items: ["Reviewed SLA_Policy.pdf"] }],
   },
-
-  // Anna Reyes – EDITOR, Customer Support
   {
     memberId: 12,
     stats: {
@@ -635,8 +720,6 @@ const dummyStaffActivities: StaffActivity[] = [
     ],
     timeline: [{ label: "Yesterday", items: ["Uploaded Refund_Process.pdf"] }],
   },
-
-  // Chris Navarro – EDITOR, Customer Support
   {
     memberId: 13,
     stats: {
@@ -652,8 +735,6 @@ const dummyStaffActivities: StaffActivity[] = [
       { label: "Today", items: ["Uploaded Troubleshooting_Guide.pdf"] },
     ],
   },
-
-  // Olivia Martinez – OWNER, Operations
   {
     memberId: 14,
     stats: {
@@ -678,8 +759,6 @@ const dummyStaffActivities: StaffActivity[] = [
       { label: "Last Week", items: ["Archived outdated procedures"] },
     ],
   },
-
-  // Nathan Brooks – APPROVER, Operations
   {
     memberId: 15,
     stats: {
@@ -696,8 +775,6 @@ const dummyStaffActivities: StaffActivity[] = [
     ],
     timeline: [{ label: "Today", items: ["Approved Vendor_Contracts.pdf"] }],
   },
-
-  // Sophia Chen – EDITOR, Operations
   {
     memberId: 16,
     stats: {
@@ -713,8 +790,6 @@ const dummyStaffActivities: StaffActivity[] = [
       { label: "Yesterday", items: ["Uploaded Supply_Chain_SOP.pdf"] },
     ],
   },
-
-  // Ethan Walker – EDITOR, Operations
   {
     memberId: 17,
     stats: {
@@ -732,56 +807,13 @@ const dummyStaffActivities: StaffActivity[] = [
   },
 ];
 
-const dummyWorkspaces: Workspace[] = [
-  {
-    id: 1,
-    name: "HR Department",
-    description: "Employee policies and onboarding documents",
-    leadCurator: { id: 1, name: "John Smith", email: "john@company.com" },
-    knowledgeCount: 12,
-    staffCount: 4,
-    status: "ACTIVE",
-    createdAt: "2026-01-01",
-    updatedAt: "2026-06-15",
-    documentCount: 247,
-  },
-  {
-    id: 2,
-    name: "Engineering Department",
-    description: "Technical specifications and development guides",
-    leadCurator: { id: 5, name: "Sarah Lee", email: "sarah@company.com" },
-    knowledgeCount: 27,
-    documentCount: 247,
-    staffCount: 5,
-    status: "ACTIVE",
-    createdAt: "2026-01-15",
-    updatedAt: "2026-06-14",
-  },
-  {
-    id: 3,
-    name: "Customer Support",
-    description: "Support procedures and FAQs",
-    leadCurator: { id: 10, name: "Robert Garcia", email: "robert@company.com" },
-    knowledgeCount: 9,
-    staffCount: 4,
-    status: "ACTIVE",
-    createdAt: "2026-02-01",
-    documentCount: 247,
-    updatedAt: "2026-06-13",
-  },
-  {
-    id: 4,
-    name: "Operations Department",
-    description: "Operational manuals and internal processes",
-    leadCurator: { id: 14, name: "Emily Davis", email: "emily@company.com" },
-    knowledgeCount: 18,
-    staffCount: 4,
-    status: "ACTIVE",
-    documentCount: 247,
-    createdAt: "2026-02-20",
-    updatedAt: "2026-06-12",
-  },
-];
+const mockFetchWorkspaces = (): Promise<Workspace[]> =>
+  new Promise((resolve) => setTimeout(() => resolve(dummyWorkspaces), 500));
+
+const mockFetchWorkspaceById = (id: number): Promise<Workspace | undefined> =>
+  new Promise((resolve) =>
+    setTimeout(() => resolve(dummyWorkspaces.find((w) => w.id === id)), 500),
+  );
 
 const mockFetchMembers = (workspaceId: number): Promise<WorkspaceMember[]> =>
   new Promise((resolve) =>
@@ -791,8 +823,8 @@ const mockFetchMembers = (workspaceId: number): Promise<WorkspaceMember[]> =>
     ),
   );
 
-const mockFetchWorkspaces = (): Promise<Workspace[]> =>
-  new Promise((resolve) => setTimeout(() => resolve(dummyWorkspaces), 500));
+const mockFetchAllMembers = (): Promise<WorkspaceMember[]> =>
+  new Promise((resolve) => setTimeout(() => resolve(dummyMembers), 500));
 
 const mockFetchStaffActivity = (
   memberId: number,
@@ -805,69 +837,105 @@ const mockFetchStaffActivity = (
   );
 
 export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
-  currentWorkspace: null,
   workspaces: [],
+  currentWorkspace: null,
   members: [],
   allMembers: [],
-  staffActivities: dummyStaffActivities,
   currentStaffActivity: null,
+  isLoading: false,
 
   fetchWorkspaces: async () => {
+    set({ isLoading: true });
     try {
+      // palitan for backend
       const workspaces = await mockFetchWorkspaces();
+
+      // const res = await fetch("/api/workspaces", { credentials: "include" });
+      // if (!res.ok) throw new Error("Failed to fetch workspaces");
+      // const workspaces = await res.json();
+
       set({ workspaces });
     } catch (error) {
       console.error("Failed to fetch workspaces:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 
   fetchWorkspaceById: async (id) => {
+    set({ isLoading: true });
     try {
-      const workspace = await new Promise<Workspace | undefined>((resolve) =>
-        setTimeout(
-          () => resolve(dummyWorkspaces.find((w) => w.id === id)),
-          500,
-        ),
-      );
-      if (!workspace) throw new Error("Not found");
+      // palitan for backend
+      const workspace = await mockFetchWorkspaceById(id);
+      if (!workspace) throw new Error(`Workspace ${id} not found`);
+
+      // const res = await fetch(`/api/workspaces/${id}`, { credentials: "include" });
+      // if (!res.ok) throw new Error("Failed to fetch workspace");
+      // const workspace = await res.json();
+
       set({ currentWorkspace: workspace });
     } catch (error) {
       console.error("Failed to fetch workspace:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 
   fetchMembers: async (workspaceId) => {
+    set({ isLoading: true });
     try {
+      // palitan for backend
       const members = await mockFetchMembers(workspaceId);
+
+      //sample
+      // const res = await fetch(`/api/workspaces/${workspaceId}/members`, { credentials: "include" });
+
       set({ members });
     } catch (error) {
       console.error("Failed to fetch members:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 
   fetchAllMembers: async () => {
+    set({ isLoading: true });
     try {
-      const all = await new Promise<WorkspaceMember[]>((resolve) =>
-        setTimeout(() => resolve(dummyMembers), 500),
-      );
+      // palitan for backend
+      const all = await mockFetchAllMembers();
+
+      // const res = await fetch("/api/members", { credentials: "include" });
+      // if (!res.ok) throw new Error("Failed to fetch all members");
+      // const all = await res.json();
+
       const unique = all.filter(
         (m, i, arr) => arr.findIndex((x) => x.email === m.email) === i,
       );
       set({ allMembers: unique });
     } catch (error) {
       console.error("Failed to fetch all members:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 
-  // ─── Now fully implemented ──────────────────────────────────────────────────
   fetchStaffActivity: async (memberId) => {
+    set({ isLoading: true });
     try {
+      // palitan for backend
       const activity = await mockFetchStaffActivity(memberId);
       if (!activity)
         throw new Error(`No activity found for member ${memberId}`);
+
+      // const res = await fetch(`/api/members/${memberId}/activity`, { credentials: "include" });
+      // if (!res.ok) throw new Error("Failed to fetch staff activity");
+      // const activity = await res.json();
+
       set({ currentStaffActivity: activity });
     } catch (error) {
       console.error("Failed to fetch staff activity:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 }));

@@ -79,7 +79,6 @@ function AddStaffModal({ onClose }: Props) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl py-4 px-6 relative">
-        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h4 className="text-lg font-semibold pt-4">Add Staff Member</h4>
           <button
@@ -187,11 +186,10 @@ function AddStaffModal({ onClose }: Props) {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex justify-center gap-6 mt-6">
           <button
             onClick={onClose}
-            className="py-1 w-42 rounded-md bg-[#454545] text-sm text-white hover:bg-gray-600"
+            className="py-1 w-42 rounded-md bg-third text-sm text-white hover:bg-gray-600"
           >
             Cancel
           </button>
