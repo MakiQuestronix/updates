@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, type ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 
-import Header from "../components/Header";
+import StatusBadge from "../components/StatusBadge";
 import StatCard from "../components/StatCard";
 
 import Search from "../assets/magnifyingGlass.svg?react";
@@ -112,12 +112,12 @@ function Workspaces() {
               />
             ))}
           </div>
-          <div className="px-4 py-2 border border-[#e0e0e0] rounded-md shadow-xs my-4">
+          <div className="px-4 py-2 border border-borders rounded-md shadow-xs my-4">
             <div>
               <p className=" font-semibold text-md">Workspaces</p>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 justify-between mb-2">
-              <div className="flex items-center border border-[#e0e0e0] rounded-md px-2 flex-1">
+              <div className="flex items-center border border-borders rounded-md px-2 flex-1">
                 <Search className="size-4 shrink-0" />
                 <input
                   value={inputValue}
@@ -158,13 +158,15 @@ function Workspaces() {
                     .map((workspace) => (
                       <tr
                         key={workspace.id}
-                        className="border-t border-[#e0e0e0] hover:bg-gray-50"
+                        className="border-t border-borders hover:bg-gray-50"
                       >
                         <td className="py-3 px-4">{workspace.name}</td>
                         <td className="py-3 px-4 text-center">
-                          <span className="px-3 py-1 rounded-full">
-                            {workspace.status}
-                          </span>
+                          <StatusBadge
+                            type="activity"
+                            value={workspace.status}
+                            styling="mx-8 sm:mx-6 md:mx-8"
+                          />
                         </td>
                         <td className="py-3 px-4 text-center">
                           {workspace.staffCount}

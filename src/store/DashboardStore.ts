@@ -117,7 +117,7 @@ const dummyDashboardData: DashboardData = {
 
 //remove for backend
 const mockFetchDashboardData = (): Promise<DashboardData> =>
-  new Promise((resolve) => setTimeout(() => resolve(dummyDashboardData), 500));
+  new Promise((resolve) => setTimeout(() => resolve(dummyDashboardData)));
 
 export const useDashboardStore = create<DashboardStore>((set) => ({
   stats: [],

@@ -52,14 +52,14 @@ function WorkspaceDetails() {
     <>
       <div className="flex px-4 py-2 my-4">
         <div className="py-2 px-4 overflow-y-auto">
-          <div className="text-md">
+          <div className="text-sm">
             <Link
               to={`/Layout/workspace/`}
               className="hover:underline cursor-pointer"
             >
               Workspaces{" "}
             </Link>
-            <span className="font-medium">
+            <span className="font-bold">
               {">"} {currentWorkspace?.name}
             </span>
           </div>

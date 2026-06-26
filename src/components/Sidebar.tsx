@@ -1,19 +1,13 @@
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useWorkspaceStore } from "../store/workspaceStore";
+import { Icon } from "@iconify/react";
 
-import HomeIcon from "../assets/home.svg?react";
-import BriefcaseIcon from "../assets/briefcase.svg?react";
-import BulbIcon from "../assets/bulb.svg?react";
-import { useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 //Icons
 import ArrowIcon from "../assets/arrow.svg?react";
-import NotifIcon from "../assets/notif.svg?react";
-import NotifRedIcon from "../assets/notif-red.svg?react";
-import ButtonIcon from "../assets/button.svg?react";
-import ShareIcon from "../assets/share.svg?react";
+
 import profilePic from "../assets/maloi.jpg";
-import { SidebarContext } from "../context/SidebarContext";
 
 type SidebarProps = {
   isOpen: boolean;
@@ -23,9 +17,22 @@ type SidebarProps = {
 function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { fetchWorkspaces } = useWorkspaceStore();
   const menuItems = [
-    { name: "Dashboard", icon: HomeIcon, path: "/Layout/dashboard" },
-    { name: "Workspace", icon: BriefcaseIcon, path: "/Layout/workspace" },
-    { name: "Knowledges", icon: BulbIcon, path: "/Layout/knowledges" },
+    {
+      name: "Dashboard",
+      icon: "ic:round-dashboard",
+      path: "/Layout/dashboard",
+    },
+    { name: "Workspace", icon: "mdi:house-city", path: "/Layout/workspace" },
+    {
+      name: "Knowledges",
+      icon: "ant-design:database-outlined",
+      path: "/Layout/knowledges",
+    },
+    {
+      name: "Analytics",
+      icon: "hugeicons:analytics-01",
+      path: "/Layout/analytics",
+    },
   ];
 
   const [arrowPressed, setArrowPressed] = useState(false);
@@ -66,7 +73,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
             >
               {({ isActive }) => (
                 <>
-                  <item.icon className={`size-5 text-fourth`} />
+                  <Icon icon={item.icon} className={`size-5 text-fourth`} />
                   <span className="font-medium text-textColor">
                     {item.name}
                   </span>

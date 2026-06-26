@@ -1,8 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/AuthStore";
 
-import LogoIcon from "../assets/Logo.svg?react";
 import eyeOpen from "../assets/eyeOpen.svg";
 import eyeClose from "../assets/eyeClose.svg";
 
@@ -17,8 +15,6 @@ function LogIn() {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const token = useAuthStore((state) => state.token);
 
   const navigate = useNavigate();
 
@@ -94,17 +90,11 @@ function LogIn() {
       console.log("Sumakses sa login");
       navigate("/Layout/dashboard");
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError("Something went wrong. Please try again." + err);
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (token) {
-      navigate("/Layout/dashboard");
-    }
-  }, [token, navigate]);
 
   return (
     <>
@@ -124,7 +114,6 @@ function LogIn() {
 
         <div className="w-full flex flex-col gap-4 items-center justify-center ">
           <div className="flex flex-col bg-white rounded-3xl p-10 h-full my-10 w-fit items-center justify-center shadow-2xl">
-            {/* <LogoIcon className="w-20 h-20" /> */}
             <h1 className="font-black text-3xl text-fourth">Ingest IQ</h1>
 
             <p className="text-sm mb-10 mt-2">
@@ -143,7 +132,6 @@ function LogIn() {
                   className="w-full px-4 py-2 border border-[#828282] rounded-full focus:outline-none focus:ring-1 focus:ring-fourth text-sm"
                 />
                 {error && <p className="text-red-500 text-sm">{error}</p>}
-
                 <div className="relative w-full">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -168,11 +156,9 @@ function LogIn() {
                     />
                   </button>
                 </div>
-
                 {passError && (
                   <p className="text-red-500 text-sm">{passError}</p>
                 )}
-
                 <div className="flex items-center justify-between w-full max-w-md mt-2">
                   <div className="flex items-center gap-2">
                     <input

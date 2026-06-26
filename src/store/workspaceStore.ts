@@ -808,31 +808,29 @@ const dummyStaffActivities: StaffActivity[] = [
 ];
 
 const mockFetchWorkspaces = (): Promise<Workspace[]> =>
-  new Promise((resolve) => setTimeout(() => resolve(dummyWorkspaces), 500));
+  new Promise((resolve) => setTimeout(() => resolve(dummyWorkspaces)));
 
 const mockFetchWorkspaceById = (id: number): Promise<Workspace | undefined> =>
   new Promise((resolve) =>
-    setTimeout(() => resolve(dummyWorkspaces.find((w) => w.id === id)), 500),
+    setTimeout(() => resolve(dummyWorkspaces.find((w) => w.id === id))),
   );
 
 const mockFetchMembers = (workspaceId: number): Promise<WorkspaceMember[]> =>
   new Promise((resolve) =>
-    setTimeout(
-      () => resolve(dummyMembers.filter((m) => m.workspaceId === workspaceId)),
-      500,
+    setTimeout(() =>
+      resolve(dummyMembers.filter((m) => m.workspaceId === workspaceId)),
     ),
   );
 
 const mockFetchAllMembers = (): Promise<WorkspaceMember[]> =>
-  new Promise((resolve) => setTimeout(() => resolve(dummyMembers), 500));
+  new Promise((resolve) => setTimeout(() => resolve(dummyMembers)));
 
 const mockFetchStaffActivity = (
   memberId: number,
 ): Promise<StaffActivity | undefined> =>
   new Promise((resolve) =>
-    setTimeout(
-      () => resolve(dummyStaffActivities.find((a) => a.memberId === memberId)),
-      500,
+    setTimeout(() =>
+      resolve(dummyStaffActivities.find((a) => a.memberId === memberId)),
     ),
   );
 

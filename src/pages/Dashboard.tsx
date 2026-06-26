@@ -1,17 +1,109 @@
-import Header from "../components/Header";
 import StatCard from "../components/StatCard";
 import { useEffect, useState, useCallback } from "react";
-import { useDashboardStore } from "../store/DashboardStore";
+import {
+  useDashboardStore,
+  type DashboardWorkspace,
+  type DashboardActivityLog,
+} from "../store/DashboardStore";
 
 import RefreshIcon from "../assets/refresh.svg?react";
 import FolderIcon from "../assets/folder.svg?react";
-import HamburgerButton from "../components/HamburgerButton";
+import StatusBadge from "../components/StatusBadge";
 import { Link } from "react-router";
 
 import { formatRelativeDate } from "../utils/utils";
 
 const getCurrentTime = () =>
   new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+interface DashboardTableProps {
+  workspaces: DashboardWorkspace[];
+}
+
+interface ActivityLogTableProps {
+  activityLogs: DashboardActivityLog[];
+}
+
+function WorkspaceTable({ workspaces }: DashboardTableProps) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full table-fixed text-sm">
+        <tbody>
+          {workspaces.map((workspace) => (
+            <tr
+              key={workspace.id}
+              className="border-b border-borders/30 last:border-b-0 hover:bg-second/20"
+            >
+              <td className="py-3 px-4">
+                <div className="flex items-center gap-2">
+                  <FolderIcon className="w-5 h-5 text-seventh shrink-0" />
+                  <p className="font-semibold truncate">{workspace.name}</p>
+                </div>
+              </td>
+              <td className="py-3 px-4 text-center">
+                {workspace.knowledgeCount} Entries
+              </td>
+              <td className="py-3 px-4 text-right">
+                <Link
+                  className="font-semibold hover:text-third"
+                  to={`/Layout/workspace/${workspace.id}`}
+                >
+                  Open →
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ActivityLogTable({ activityLogs }: ActivityLogTableProps) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm min-w-125">
+        <thead>
+          <tr className="text-left border-b border-borders/50">
+            <th className="py-2 font-semibold w-2/5">Name</th>
+            <th className="py-2 px-4 font-semibold w-16">Size</th>
+            <th className="py-2 font-semibold text-center w-24">Status</th>
+            <th className="py-2 font-semibold text-center w-24">Owner</th>
+            <th className="py-2 px-4 font-semibold text-right w-28">
+              Last Modified
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {activityLogs.map((item) => (
+            <tr
+              key={item.id}
+              className="border-b border-borders/30 last:border-b-0"
+            >
+              <td className="py-3 font-semibold">{item.name}</td>
+
+              <td className="py-3">{item.size.toFixed(2)} MB</td>
+
+              <td className="px-4 text-center">
+                <StatusBadge
+                  type="status"
+                  value={item.status}
+                  styling="w-28 mx-auto"
+                />
+              </td>
+
+              <td className="py-3 text-center">{item.owner}</td>
+
+              <td className="py-3 text-right  px-4">
+                {formatRelativeDate(item.lastModified)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 function Dashboard() {
   const {
@@ -52,10 +144,8 @@ function Dashboard() {
     setIsRefreshing(false);
   };
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   useEffect(() => {
-    refreshAll();
+    setTimeout(refreshAll, 0);
     const interval = setInterval(refreshAll, 30000);
     return () => clearInterval(interval);
   }, [refreshAll]);
@@ -80,7 +170,6 @@ function Dashboard() {
             </button>
           </div>
 
-          {/* Stats */}
           <div className="my-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {stats.map((stat, index) => (
@@ -97,7 +186,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="px-4 py-2 rounded-lg shadow-xs border border-[#e0e0e0]/50 my-2">
+          <div className="px-4 py-2 rounded-lg shadow-xs border border-borders/50 my-2">
             <div className="flex items-center justify-between px-4 pt-2">
               <h6 className="text-sm font-semibold">Active Workspaces</h6>
               <Link
@@ -107,47 +196,16 @@ function Dashboard() {
                 View All <span className="text-lg">→</span>
               </Link>
             </div>
-            <hr className="border-b-0.5 border-[#e0e0e0]/50 my-2 mx-2" />
-            <div className="overflow-x-auto">
-              <table className="w-full table-fixed text-sm">
-                <tbody>
-                  {workspaces.map((workspace) => (
-                    <tr
-                      key={workspace.id}
-                      className="border-b border-[#e0e0e0]/30 last:border-b-0 hover:bg-second/20"
-                    >
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          <FolderIcon className="w-5 h-5 text-seventh shrink-0" />
-                          <p className="font-semibold truncate">
-                            {workspace.name}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        {workspace.knowledgeCount} Entries
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <Link
-                          className="font-semibold hover:text-third"
-                          to={`/Layout/workspace/${workspace.id}`}
-                        >
-                          Open →
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <hr className="border-b-0.5 border-borders/50 my-2 mx-2" />
+            <WorkspaceTable workspaces={workspaces}></WorkspaceTable>
           </div>
 
           <div className="py-2 flex flex-col gap-4 sm:flex-row items-stretch my-2">
-            <div className="rounded-lg shadow-sm p-2 sm:p-3 border border-[#e0e0e0]/50 w-full sm:w-1/3">
+            <div className="rounded-lg shadow-sm p-2 sm:p-3 border border-borders/50 w-full sm:w-1/3">
               <p className="text-sm font-semibold">Recent Knowledge Entries</p>
-              <hr className="border-b-0.5 border-[#e0e0e0]/50 my-2" />
+              <hr className="border-b-0.5 border-borders/50 my-2" />
               <div className="space-y-3">
-                {recentKnowledge.map((item) => (
+                {recentKnowledge.slice(0, 3).map((item) => (
                   <div
                     key={item.id}
                     className="flex items-center gap-2 py-1 px-2 sm:px-3 hover:bg-second rounded-md justify-between"
@@ -167,9 +225,9 @@ function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded-lg shadow-sm p-2 sm:p-3 border border-[#e0e0e0]/50 w-full flex-1">
+            <div className="rounded-lg shadow-sm p-2 sm:p-3 border border-borders/50 w-full flex-1">
               <p className="text-sm font-semibold">Processing Status Summary</p>
-              <hr className="border-b-0.5 border-[#e0e0e0]/50 my-2" />
+              <hr className="border-b-0.5 border-borders/50 my-2" />
               <div className="space-y-4">
                 {[
                   { label: "Processing", value: processingStatus.processing },
@@ -178,82 +236,30 @@ function Dashboard() {
                 ].map(({ label, value }) => (
                   <div
                     key={label}
-                    className="grid grid-cols-8 items-center gap-2 pl-2 sm:pl-4"
+                    className="flex items-center gap-4 pl-2 sm:pl-4"
                   >
-                    <p className="text-sm font-semibold col-span-2 sm:col-span-1">
+                    <p className="text-sm font-semibold w-24 shrink-0">
                       {label}
                     </p>
-
-                    <div className="col-span-5 sm:col-span-6 h-2 bg-first rounded-full overflow-hidden border border-[#e0e0e0]/34 shadow-xs">
+                    <div className="h-2 flex-1 bg-first rounded-full overflow-hidden border border-borders/34 shadow-xs">
                       <div
                         className="h-full bg-[#B148D2] rounded-full transition-all duration-500"
                         style={{ width: `${value}%` }}
                       />
                     </div>
-                    <p className="text-sm font-medium pl-4">{value}%</p>
+                    <p className="text-sm font-medium w-10 text-right shrink-0">
+                      {value}%
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="px-4 py-2 rounded-lg shadow-xs border border-[#e0e0e0]/50">
+          <div className="px-4 py-2 rounded-lg shadow-xs border border-borders/50">
             <p className="text-sm font-semibold">System Activity Log</p>
-            <hr className="border-b-0.5 border-[#e0e0e0]/50 my-2" />
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-125">
-                <thead>
-                  <tr className="text-left border-b border-[#e0e0e0]/50">
-                    <th className="py-2 font-semibold w-2/5">Name</th>
-                    <th className="py-2 px-4 font-semibold w-16">Size</th>
-                    <th className="py-2 font-semibold text-center w-24">
-                      Status
-                    </th>
-                    <th className="py-2 font-semibold text-center w-24">
-                      Owner
-                    </th>
-                    <th className="py-2 px-4 font-semibold text-right w-28">
-                      Last Modified
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {activityLogs.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="border-b border-[#e0e0e0]/30 last:border-b-0"
-                    >
-                      <td className="py-3 font-semibold">{item.name}</td>
-
-                      <td className="py-3  px-4">{item.size.toFixed(2)} MB</td>
-
-                      <td className="py-3 text-center">
-                        <span
-                          className={`inline-block py-1 px-3 rounded-full text-xs text-center font-semibold whitespace-nowrap ${
-                            item.status === "Complete"
-                              ? "bg-status-active/20 text-status-active"
-                              : item.status === "Pending"
-                                ? "bg-[#4285F4]/20 text-[#4285F4]"
-                                : item.status === "Processing"
-                                  ? "bg-status-pending/20 text-status-pending"
-                                  : "bg-status-inactive/20 text-status-inactive"
-                          }`}
-                        >
-                          {item.status}
-                        </span>
-                      </td>
-
-                      <td className="py-3 text-center">{item.owner}</td>
-
-                      <td className="py-3 text-right  px-4">
-                        {formatRelativeDate(item.lastModified)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <hr className="border-b-0.5 border-borders/50 my-2" />
+            <ActivityLogTable activityLogs={activityLogs}></ActivityLogTable>
           </div>
 
           <div className="py-4">

@@ -29,7 +29,7 @@ const StatCard = ({
 
   return (
     <div
-      className={`group flex flex-col rounded-lg p-4 justify-center shadow-md border border-[#E0E0E0] transition-all cursor-pointer ${textAlign ?? "text-left"} ${bgColor} ${textColor} ${hoverBgColor} ${textHoverColor}`}
+      className={`group flex flex-col flex-1 rounded-lg p-4 justify-center shadow-md border border-[#E0E0E0] transition-all cursor-pointer ${textAlign ?? "text-left"} ${bgColor} ${textColor} ${hoverBgColor} ${textHoverColor}`}
     >
       <p className="text-xs mb-2 opacity-80 font-semibold">{name}</p>
       <h1 className={`${amountClassName} truncate `}>{amount}</h1>
