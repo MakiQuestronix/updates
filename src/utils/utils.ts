@@ -14,3 +14,33 @@ export function formatRelativeDate(timestamp: string): string {
 
   return formatDistanceToNow(date, { addSuffix: true });
 }
+
+export const getFileIconName = (fileName: string) => {
+  const ext = fileName.split(".").pop()?.toLowerCase();
+
+  switch (ext) {
+    case "pdf":
+      return "vscode-icons:file-type-pdf2";
+
+    case "docx":
+      return "vscode-icons:file-type-word";
+
+    case "md":
+      return "vscode-icons:file-type-markdown";
+
+    case "pptx":
+      return "vscode-icons:file-type-powerpoint";
+
+    case "xlsx":
+      return "vscode-icons:file-type-excel";
+
+    case "csv":
+      return "vscode-icons:file-type-excel";
+
+    case "txt":
+      return "vscode-icons:file-type-text";
+
+    default:
+      return "vscode-icons:default-file";
+  }
+};

@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  type ChangeEvent,
-  type DragEvent,
-} from "react";
+import { useState } from "react";
 
 interface Props {
   onClose: () => void;
@@ -34,21 +28,16 @@ function AddMetadata({ onClose, onBack, files }: Props) {
   };
   const handleUpload = async () => {
     setIsUploading(true);
-    const formData = new FormData();
-
-    files.forEach((f, i) => {
-      formData.append("files", f);
-      formData.append(`metadata[${i}]`, JSON.stringify(metadata[i]));
-    });
-
     try {
-      //   const response = await fetch("/api/documents/upload", {
-      //     method: "POST",
-      //     body: formData,
-      //   });
-
-      //if (!response.ok) throw new Error("Upload failed");
-
+      for (let i = 0; i < files.length; i++) {
+        const formData = new FormData();
+        formData.append("file", files[i]);
+        formData.append("metadata", JSON.stringify(metadata[i]));
+        // await fetch("/api/documents/upload", {
+        //   method: "POST",
+        //   body: formData,
+        // });
+      }
       setIsUploading(false);
       onClose();
     } catch (err) {
@@ -153,7 +142,7 @@ function AddMetadata({ onClose, onBack, files }: Props) {
             </div>
           </div>
 
-          <div className="flex gap-8 items-center justify-center py-4 w-full sm:w-3/4 md:w-1/2 mx-auto">
+          <div className="flex gap-2 items-center justify-center my-2 w-2/3 mx-auto">
             <button
               onClick={onBack}
               className="flex-1 py-2 border border-[#e0e0e0]/34 rounded-md shadow"

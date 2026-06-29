@@ -1,7 +1,6 @@
 import { useState, useEffect, type ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 
-import Header from "../components/Header";
 import Search from "../assets/magnifyingGlass.svg?react";
 import Dropdown from "../assets/arrowToggle.svg?react";
 import RefreshIcon from "../assets/refresh.svg?react";
@@ -40,11 +39,11 @@ function Knowledges() {
   } = useKnowledgeStore();
 
   //UI states
-  const [searchValue, setSearchValue] = useState("");
   const [selectedWorkspace, setSelectedWorkspace] = useState("All workspaces");
   const [sort, setSort] = useState("Recently Updated");
   const [displayCount, setDisplayCount] = useState(4);
   const [create, showCreate] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(event.target.value);
@@ -129,7 +128,7 @@ function Knowledges() {
           <div className="pb-2">
             <h1 className="text-lg font-semibold pt-4 py-2">Knowledge Bases</h1>
             <div className="flex gap-4">
-              <div className="flex flex-1 py-2 items-center border border-[#e0e0e0] rounded-md px-4 self-stretch shadow">
+              <div className="flex flex-1 py-2 items-center border border-borders rounded-md px-4 self-stretch shadow">
                 <Search className="size-4" />
                 <input
                   value={searchValue}
@@ -139,7 +138,7 @@ function Knowledges() {
                 />
               </div>
 
-              <div className="flex gap-10 items-center border border-[#e0e0e0] rounded-md px-4 py-2 self-stretch shadow">
+              <div className="flex gap-10 items-center border border-borders rounded-md px-4 py-2 self-stretch shadow">
                 <div className="flex items-center ">
                   <p className="font-semibold mr-2">Workspaces:</p>
                   <div className="relative">

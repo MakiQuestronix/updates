@@ -1,6 +1,5 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Header from "../components/Header";
 import { useWorkspaceStore } from "../store/workspaceStore";
 
 type Tab = "profile" | "activity" | "permissions";
@@ -54,7 +53,7 @@ function WorkspaceStaff() {
       <div className="flex px-4 py-2">
         <div className="flex-1 overflow-y-auto">
           <div className="py-2 px-4">
-            <div className="text-md">
+            <div className="text-sm">
               <Link
                 to="/Layout/workspace"
                 className="hover:underline cursor-pointer"
@@ -78,7 +77,7 @@ function WorkspaceStaff() {
               </Link>
               {" > "}
 
-              <span className="font-semibold">{member.name}</span>
+              <span className="font-bold">{member.name}</span>
             </div>
             <div className="flex flex-row gap-4 mt-6 border border-[#e0e0e0] rounded-md p-2 px-2 items-start">
               <div className="pt-4 pl-10 flex gap-4">

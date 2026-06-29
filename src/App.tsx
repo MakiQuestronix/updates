@@ -33,8 +33,8 @@ function App() {
           <Route path="knowledges">
             <Route index element={<Knowledges />} />
             <Route path=":id" element={<KnowledgeDetails />} />
+            <Route path=":id/:docId" element={<Documents />} />
           </Route>
-          <Route path="documents" element={<Documents />} />
         </Route>
       </Routes>
     </>

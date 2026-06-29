@@ -1,13 +1,8 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  type ChangeEvent,
-  type DragEvent,
-} from "react";
+import { useState, useRef, type ChangeEvent, type DragEvent } from "react";
 
 import Cloud from "../assets/Cloud.svg?react";
-import { FileIcon, defaultStyles } from "react-file-icon";
+import { Icon } from "@iconify/react";
+import { getFileIconName } from "../utils/utils";
 import AddMetadata from "./AddMetadata";
 
 interface Props {
@@ -47,9 +42,6 @@ function UploadDocument({ onClose }: Props) {
   const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
   const [errors, setErrors] = useState<string[]>([]);
-
-  const getFileExt = (filename: string) =>
-    filename.split(".").pop()?.toLowerCase() ?? "";
 
   const validateFiles = (incoming: File[]) => {
     const valid: File[] = [];
@@ -107,13 +99,13 @@ function UploadDocument({ onClose }: Props) {
             </div>
             <hr className="border border-third my-2 w-1/5" />
             <div className="flex gap-2 items-center">
-              <div className="flex bg-white border border-[#E0E0E0]/34 rounded-full h-10 w-10 items-center justify-center shadow">
+              <div className="flex bg-white border border-borders/34 rounded-full h-10 w-10 items-center justify-center shadow">
                 <p className="text-xl text-fourth">2</p>
               </div>
               <p className="font-semibold">Add Metadata</p>
             </div>
           </div>
-          <div className="flex flex-col px-4 py-2 w-full bg-white border border-[#e0e0e0]/34 rounded-md my-2 shadow h-full">
+          <div className="flex flex-col px-4 py-2 w-full bg-white border border-borders/34 rounded-md my-2 shadow h-full">
             <div
               onDragOver={(e) => {
                 e.preventDefault();
@@ -141,7 +133,7 @@ function UploadDocument({ onClose }: Props) {
               />
               <button
                 onClick={() => inputRef.current?.click()}
-                className="bg-white text-fourth py-2 px-4 rounded-md font-semibold border border-[#e0e0e0] shadow-xs text-sm"
+                className="bg-white text-fourth py-2 px-4 rounded-md font-semibold border border-borders shadow-xs text-sm"
               >
                 Browse Files
               </button>
@@ -157,7 +149,7 @@ function UploadDocument({ onClose }: Props) {
                   Uploaded Files ({files.length})
                 </h2>
               </div>
-              <div className="overflow-y-auto max-h-20">
+              <div className="overflow-y-auto max-h-30">
                 {files.length > 0 && (
                   <ul className="pb-2 w-full">
                     {files.map((f, i) => (
@@ -166,12 +158,11 @@ function UploadDocument({ onClose }: Props) {
                         className="flex items-center justify-between my-2 pl-4 pr-4 gap-2"
                       >
                         <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <div className="size-4 shrink-0">
-                            <FileIcon
-                              extension={getFileExt(f.name)}
-                              {...defaultStyles[getFileExt(f.name)]}
-                            />
-                          </div>
+                          <Icon
+                            icon={getFileIconName(f.name)}
+                            className="size-6"
+                          />
+
                           <p className="text-sm font-semibold truncate">
                             {f.name}
                           </p>
@@ -182,7 +173,7 @@ function UploadDocument({ onClose }: Props) {
                         </p>
                         <button
                           onClick={() => removeFile(i)}
-                          className="border border-[#e0e0e0]/20 hover:bg-status-inactive/30 rounded-full size-5 flex items-center justify-center shrink-0"
+                          className="border border-borders/20 hover:bg-status-inactive/30 rounded-full size-5 flex items-center justify-center shrink-0"
                         >
                           ×
                         </button>
@@ -203,10 +194,10 @@ function UploadDocument({ onClose }: Props) {
             </ul>
           )}
 
-          <div className="flex gap-8 items-center justify-center py-4 w-full sm:w-1/2 mx-auto">
+          <div className="flex gap-2 items-center justify-center my-2 w-2/3 mx-auto">
             <button
               onClick={() => onClose()}
-              className="flex-1 py-2 border border-[#e0e0e0]/34 rounded-md shadow"
+              className="flex-1 py-2 border border-borders/34 rounded-md shadow"
             >
               Close
             </button>
@@ -220,7 +211,7 @@ function UploadDocument({ onClose }: Props) {
                   setStep("metadata");
                 }
               }}
-              className="flex-1 py-2 border border-[#e0e0e0]/34 bg-fourth rounded-md text-white shadow"
+              className="flex-1 py-2 border border-borders/34 bg-fourth rounded-md text-white shadow"
             >
               Add Metadata
             </button>

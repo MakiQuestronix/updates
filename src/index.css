@@ -1,7 +1,6 @@
 @import "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap";
-
 @import "tailwindcss";
-
+@import "@fontsource-variable/inter";
 @theme {
   --color-first: #ffffff;
   --color-second: #f3ccff;
@@ -10,6 +9,7 @@
   --color-fifth: #eeeeee;
   --color-sixth: #333652;
   --color-seventh: #e79aff;
+  --color-borders: #e0e0e0;
 
   --color-textColor: #333652;
 
